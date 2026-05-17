@@ -62,12 +62,12 @@ async function loadHomepageProducts(gridId, serverSection) {
                         
                         <button class="quick-add-btn" data-id="${product.id}">THÊM NHANH</button>
                         
-                        <a href="ProductDetail.HTML?id=${product.id}">
+                        <a href="product-detail.html?id=${product.id}">
                             <img src="../${imagePath}" alt="${product.name}">
                         </a>
                     </div>
                     <div class="card-details">
-                        <h4 class="card-title"><a href="ProductDetail.HTML?id=${product.id}">${product.name}</a></h4>
+                        <h4 class="card-title"><a href="product-detail.html?id=${product.id}">${product.name}</a></h4>
                         
                         <div class="card-rating">
                             <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i> 

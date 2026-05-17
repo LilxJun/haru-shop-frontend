@@ -118,13 +118,13 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <i class="fas fa-times" style="color: #333;"></i>
                     </button>
                     <button class="quick-add-btn btn-quick-view" data-id="${prodId}">THÊM NHANH</button>
-                    <a href="ProductDetail.HTML?id=${prodId}" style="display: block;">
+                    <a href="product-detail.html?id=${prodId}" style="display: block;">
                         <img src="${imgSrc}" alt="${item.name}" style="width: 100%; height: auto; display: block;">
                     </a>
                 </div>
                 <div class="card-details" style="padding: 15px;">
                     <h4 class="card-title" style="margin: 0 0 10px 0; font-size: 16px;">
-                        <a href="ProductDetail.HTML?id=${prodId}" style="color: #000; text-decoration: none;">${item.name}</a>
+                        <a href="product-detail.html?id=${prodId}" style="color: #000; text-decoration: none;">${item.name}</a>
                     </h4>
                     <div class="card-price" style="font-weight: bold; font-size: 16px;">${formattedPrice}</div>
                 </div>

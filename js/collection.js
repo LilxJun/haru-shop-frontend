@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const formattedPrice = Number(item.price).toLocaleString('vi-VN');
 
             // TẠO ĐƯỜNG LINK TRUYỀN ID SẢN PHẨM
-            const detailLink = `ProductDetail.HTML?id=${item.id}`;
+            const detailLink = `product-detail.html?id=${item.id}`;
 
             return `
                 <div class="collection-product-card">

@@ -275,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (isHomePage) imgSrc = imgSrc.replace('../', '');
 
             return `
-                <a href="ProductDetail.HTML?id=${p.id}" style="display: flex; align-items: center; gap: 15px; padding: 12px 20px; text-decoration: none; color: #333; border-bottom: 1px solid #f9f9f9; transition: background 0.2s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'">
+                <a href="product-detail.html?id=${p.id}" style="display: flex; align-items: center; gap: 15px; padding: 12px 20px; text-decoration: none; color: #333; border-bottom: 1px solid #f9f9f9; transition: background 0.2s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='transparent'">
                     <img src="${imgSrc}" alt="${p.name}" style="width: 50px; height: 50px; object-fit: contain; flex-shrink: 0;">
                     <div style="flex-grow: 1;">
                         <h4 style="margin: 0 0 5px 0; font-size: 14px; font-weight: 500;">${p.name}</h4>

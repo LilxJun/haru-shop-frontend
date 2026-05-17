@@ -9,3 +9,12 @@ Lệnh SQL
 -- Tạo sẵn 2 mã giảm giá cho bảng coupons voucher 
 INSERT INTO coupons (code, discount_percent, is_freeship) VALUES ('HARU10', 10, FALSE);
 INSERT INTO coupons (code, discount_percent, is_freeship) VALUES ('FREESHIP', 0, TRUE);
+
+# 1. Gom hàng lại
+git add .
+
+# 2. Commit kèm tin nhắn (viết trong ngoặc kép như này nè sếp)
+git commit -m "Fix login redirect to lowercase index.html"
+
+# 3. Phóng lên mây
+git push origin main

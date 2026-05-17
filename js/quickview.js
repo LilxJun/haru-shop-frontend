@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
             quantity = 1;
             qtyInput.value = quantity;
             qvTitle.innerText = product.name;
-            btnViewDetails.href = `ProductDetail.HTML?id=${product.id}`;
+            btnViewDetails.href = `product-detail.html?id=${product.id}`;
 
             // Nạp mảng ảnh (Bổ sung từ code mới)
             qvImages = [];
