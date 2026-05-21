@@ -174,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     registerButton.style.backgroundColor = '#28a745';
 
                     setTimeout(() => {
-                        window.location.href = 'Login.HTML';
+                        window.location.href = 'login.html';
                     }, 1000);
                 } else {
                     errorMessage.innerText = data.message;

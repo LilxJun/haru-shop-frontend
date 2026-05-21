@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 container.innerHTML = `
                     <h3>Chưa có đơn hàng nào</h3>
                     <p>Truy cập cửa hàng để đặt hàng.</p>
-                    <a href="Mice.HTML" class="go-shopping-btn">Đi đến cửa hàng</a>
+                    <a href="mice.html" class="go-shopping-btn">Đi đến cửa hàng</a>
                 `;
                 return;
             }

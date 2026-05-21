@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Nếu lọt vào đây mà chưa đăng nhập thì đuổi ra trang Login ngay
     if (!currentUserEmail) {
         alert("Vui lòng đăng nhập để thanh toán!");
-        window.location.href = 'Login.HTML';
+        window.location.href = 'login.html';
         return;
     }
 

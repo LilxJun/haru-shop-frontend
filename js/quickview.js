@@ -208,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     alert("Vui lòng đăng nhập để mua hàng!");
                 }
-                setTimeout(() => window.location.href = 'Login.HTML', 1500);
+                setTimeout(() => window.location.href = 'login.html', 1500);
                 return;
             }
             // --- KẾT THÚC FIX LỖI EMAIL ---

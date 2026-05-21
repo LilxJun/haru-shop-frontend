@@ -301,7 +301,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         document.getElementById('btn-buy-now')?.addEventListener('click', () => {
             document.getElementById('btn-add-to-cart').click();
-            setTimeout(() => { window.location.href = 'Checkout.HTML'; }, 500);
+            setTimeout(() => { window.location.href = 'checkout.html'; }, 500);
         });
     }
 });
@@ -419,7 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.getElementById('btn-go-to-login').addEventListener('click', () => {
         // Chuyển hướng sang trang đăng nhập
-        window.location.href = 'Login.HTML';
+        window.location.href = 'login.html';
     });
 
 

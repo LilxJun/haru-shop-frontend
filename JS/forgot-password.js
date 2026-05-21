@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     setTimeout(() => {
                         alert('Đổi mật khẩu thành công! Vui lòng đăng nhập lại.');
-                        window.location.href = 'Login.HTML';
+                        window.location.href = 'login.html';
                     }, 1500);
                 } else {
                     step2Error.innerText = data.message;

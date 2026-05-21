@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const userEmail = getSafeUserEmail(); // Quét lại email trước khi thêm
         if (!userEmail) {
             showToast("Vui lòng đăng nhập để mua hàng!");
-            setTimeout(() => window.location.href = 'Login.HTML', 1500);
+            setTimeout(() => window.location.href = 'login.html', 1500);
             return;
         }
 
@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showToast("Vui lòng đăng nhập để thanh toán!");
                 return;
             }
-            window.location.href = 'Checkout.HTML';
+            window.location.href = 'checkout.html';
         });
     }
 

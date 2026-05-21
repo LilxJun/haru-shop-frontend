@@ -6,29 +6,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Danh sách yêu thích - Haru</title>
 
-    <link rel="stylesheet" href="../CSS/style.CSS">
-    <link rel="stylesheet" href="../CSS/Collection.CSS">
-    <link rel="stylesheet" href="../CSS/QuickView.css">
-    <link rel="stylesheet" href="../CSS/HeaderFooter.css">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/collection.css">
+    <link rel="stylesheet" href="css/quickview.css">
+    <link rel="stylesheet" href="css/header-footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    <link rel="stylesheet" href="../CSS/Wishlist.css">
+    <link rel="stylesheet" href="css/wishlist.css">
 </head>
 
 <body class="homepage">
     <header class="main-header">
         <div class="header-left">
-            <div class="logo"><a href="Index.HTML">Haru</a></div>
+            <div class="logo"><a href="index.html">Haru</a></div>
         </div>
 
         <nav class="header-nav">
             <div class="nav-close-btn"><i class="fas fa-times"></i></div>
             <ul>
-                <li><a href="Index.HTML">TRANG CHỦ</a></li>
-                <li><a href="Mice.HTML">CHUỘT</a></li>
-                <li><a href="Keyboard.HTML">BÀN PHÍM</a></li>
-                <li><a href="Headphone.HTML">TAI NGHE</a></li>
-                <li><a href="Accessories.HTML">ACCESSORIES</a></li>
+                <li><a href="index.html">TRANG CHỦ</a></li>
+                <li><a href="mice.html">CHUỘT</a></li>
+                <li><a href="keyboard.html">BÀN PHÍM</a></li>
+                <li><a href="headphone.html">TAI NGHE</a></li>
+                <li><a href="accessories.html">ACCESSORIES</a></li>
 
                 <li class="nav-item-dropdown">
                     <a href="#">HƯỚNG DẪN <i class="fas fa-chevron-down dropdown-arrow"></i></a>
@@ -45,22 +45,22 @@
                 <a href="#" class="header-icon-link" id="header-search-icon"><i class="fas fa-search"></i></a>
 
                 <div class="user-menu-container" id="user-menu-logged-out">
-                    <a href="Login.HTML" class="header-icon-link"><i class="fas fa-user"></i></a>
+                    <a href="login.html" class="header-icon-link"><i class="fas fa-user"></i></a>
                     <div class="user-dropdown-menu">
-                        <a href="Login.HTML" class="dropdown-item">Đăng nhập</a>
-                        <a href="Register.HTML" class="dropdown-item">Đăng ký</a>
+                        <a href="login.html" class="dropdown-item">Đăng nhập</a>
+                        <a href="register.html" class="dropdown-item">Đăng ký</a>
                     </div>
                 </div>
 
                 <div class="user-menu-container" id="user-menu-logged-in" style="display: none;">
-                    <a href="Profile.HTML" class="header-icon-link" id="current-username">...</a>
+                    <a href="profile.html" class="header-icon-link" id="current-username">...</a>
                     <div class="user-dropdown-menu">
-                        <a href="Profile.HTML" class="dropdown-item">Tài khoản của tôi</a>
+                        <a href="profile.html" class="dropdown-item">Tài khoản của tôi</a>
                         <a href="#" class="dropdown-item" id="logout-button">Đăng xuất</a>
                     </div>
                 </div>
 
-                <a href="Wishlist.HTML" class="header-icon-link active">
+                <a href="wishlist.html" class="header-icon-link active">
                     <i class="fas fa-heart"></i>
                     <span class="count-badge" id="wishlist-count">0</span>
                 </a>
@@ -85,7 +85,7 @@
 
         <div id="empty-wishlist-msg">
             <p style="font-size: 18px; color: #666; margin-bottom: 20px;">Danh sách yêu thích của bạn đang trống.</p>
-            <a href="Index.HTML"
+            <a href="index.html"
                 style="display:inline-block; padding: 10px 20px; background: #000; color: #fff; text-decoration: none; border-radius: 4px;">Tiếp
                 tục mua sắm</a>
         </div>
@@ -149,7 +149,7 @@
         <div class="footer-bottom-wrapper">
             <p class="copyright">JUICEJUN SHOP</p>
             <div class="payment-methods">
-                <img src="../IMG/CacHinhThucThanhToan.png" alt="Payment Methods" class="payment-image">
+                <img src="img/CacHinhThucThanhToan.png" alt="Payment Methods" class="payment-image">
             </div>
         </div>
     </footer>
@@ -239,10 +239,10 @@
         </div>
     </div>
 
-    <script src="../JS/Header.JS"></script>
-    <script src="../JS/cart.js"></script>
-    <script src="../JS/quickView.JS"></script>
-    <script src="../JS/Wishlist.JS"></script>
+    <script src="js/header.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/quickview.js"></script>
+    <script src="js/wishlist.js"></script>
 </body>
 
 </html>

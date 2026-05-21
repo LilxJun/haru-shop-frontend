@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.removeItem('userEmail');
 
                     // Tải lại trang để về trạng thái khách
-                    window.location.href = 'Index.HTML';
+                    window.location.href = 'index.html';
                 });
             }
         } catch (e) {
