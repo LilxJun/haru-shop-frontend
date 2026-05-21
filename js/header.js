@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Kiểm tra để tránh tạo 2 nút nếu lỡ script chạy 2 lần
                 if (dropdownMenu && !document.getElementById('admin-link-btn')) {
                     const adminLink = document.createElement('a');
-                    adminLink.href = 'Admin.HTML';
+                    adminLink.href = 'admin.html';
                     adminLink.className = 'dropdown-item';
                     adminLink.id = 'admin-link-btn';
                     adminLink.innerHTML = '<i class="fas fa-cogs" style="margin-right: 8px;"></i> Quản trị Shop';
