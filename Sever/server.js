@@ -181,14 +181,32 @@ app.get('/api/homepage-products', async (req, res) => {
     }
 });
 
-// API lấy chi tiết 1 sản phẩm
+// API lấy chi tiết 1 sản phẩm (ĐÃ NÂNG CẤP ĐỂ ĐỌC TỪ 3 BẢNG MỚI)
 app.get('/api/products/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        const result = await pool.query('SELECT * FROM products WHERE id = $1', [id]);
-        if (result.rows.length === 0) return res.status(404).json({ error: 'Không tìm thấy' });
-        res.json(result.rows[0]);
+        // 1. Lấy thông tin cơ bản từ bảng products
+        const productRes = await pool.query('SELECT * FROM products WHERE id = $1', [id]);
+
+        if (productRes.rows.length === 0) {
+            return res.status(404).json({ error: 'Không tìm thấy sản phẩm' });
+        }
+
+        let product = productRes.rows[0];
+
+        // 2. Lấy danh sách biến thể (màu sắc, model, giá) từ bảng product_variants
+        const variantsRes = await pool.query('SELECT * FROM product_variants WHERE product_id = $1', [id]);
+        product.variants = variantsRes.rows; // Gắn mảng variants vào cục product
+
+        // 3. Lấy thông số kỹ thuật từ bảng product_specs
+        const specsRes = await pool.query('SELECT * FROM product_specs WHERE product_id = $1', [id]);
+        product.specs = specsRes.rows; // Gắn mảng specs vào cục product
+
+        // Trả về Frontend cục dữ liệu hoàn chỉnh
+        res.json(product);
+
     } catch (err) {
+        console.error("Lỗi lấy chi tiết sản phẩm:", err);
         res.status(500).json({ error: err.message });
     }
 });
