@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            // GỌI ĐÚNG ENDPOINT MỚI BÊN BACKEND (Sếp nhớ sửa lại endpoint này bên BE nhé)
+            // Nhớ xóa chữ admin/ ở giữa đi nhé!
             const res = await fetch('https://haru-shop-backend-production.up.railway.app/api/products/add-complete', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
