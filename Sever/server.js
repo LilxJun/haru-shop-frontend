@@ -511,31 +511,91 @@ process.on('SIGINT', async () => {
 // API ADMIN: QUẢN LÝ SẢN PHẨM
 // ==========================================
 
-// 1. Thêm sản phẩm mới
-app.post('/api/admin/products', async (req, res) => {
-    // Lấy thêm description và specs
-    const { name, price, stock, image, category, colors, models, description, specs } = req.body;
+// ==========================================
+// API ADMIN: QUẢN LÝ SẢN PHẨM (BẢN MỚI)
+// ==========================================
+
+// 1. Thêm sản phẩm mới (Lưu vào 3 bảng: products, product_variants, product_specs)
+app.post('/api/products/add-complete', async (req, res) => {
+    // Nhận dữ liệu từ Frontend gửi lên (Theo chuẩn mới)
+    const { name, category, description, variants, specs } = req.body;
+
+    if (!name || !category) {
+        return res.status(400).json({ error: "Tên sản phẩm và danh mục là bắt buộc!" });
+    }
+
+    const client = await pool.connect();
+
     try {
-        // Cập nhật SQL có 9 biến
-        const query = `
-            INSERT INTO products (name, price, stock, image, category, colors, models, description, specs) 
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *
+        await client.query('BEGIN'); // Bắt đầu Transaction
+
+        // BƯỚC 1: Lưu thông tin cơ bản vào bảng 'products'
+        // Chú ý: Bảng của sếp có thể còn các cột giá, ảnh mặc định.
+        // Ở đây em lấy tạm giá và ảnh của biến thể đầu tiên làm mặc định cho bảng cha
+        const defaultPrice = variants && variants.length > 0 ? variants[0].price : 0;
+        const defaultStock = variants && variants.length > 0 ? variants[0].stock : 0;
+        const defaultImage = variants && variants.length > 0 ? variants[0].colorImg : 'IMG/default.png';
+
+        const insertProductSQL = `
+            INSERT INTO products (name, category, description, price, stock, image) 
+            VALUES ($1, $2, $3, $4, $5, $6) 
+            RETURNING id
         `;
-        const result = await pool.query(query, [
-            name,
-            price,
-            stock || 0,
-            image || 'IMG/default.png',
-            category,
-            JSON.stringify(colors),
-            models ? JSON.stringify(models) : null,
-            description || null,           // Lưu văn bản mô tả (Cho phép null)
-            specs ? JSON.stringify(specs) : null // Lưu JSONB thông số (Cho phép null)
-        ]);
-        res.json({ success: true, product: result.rows[0] });
-    } catch (err) {
-        console.error("❌ LỖI THÊM SẢN PHẨM:", err.message);
-        res.status(500).json({ success: false, error: err.message });
+        const productResult = await client.query(insertProductSQL, [name, category, description, defaultPrice, defaultStock, defaultImage]);
+        const newProductId = productResult.rows[0].id;
+
+        // BƯỚC 2: Lưu các biến thể (Màu, Model) vào bảng 'product_variants'
+        if (variants && variants.length > 0) {
+            const insertVariantSQL = `
+                INSERT INTO product_variants (product_id, model_name, color_name, color_hex, color_img, price, stock) 
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+            `;
+
+            for (let v of variants) {
+                await client.query(insertVariantSQL, [
+                    newProductId,
+                    v.modelName || null,
+                    v.colorName,
+                    v.colorHex,
+                    v.colorImg,
+                    v.price,
+                    v.stock
+                ]);
+            }
+        }
+
+        // BƯỚC 3: Lưu thông số kỹ thuật vào bảng 'product_specs'
+        if (specs && specs.length > 0) {
+            const insertSpecSQL = `
+                INSERT INTO product_specs (product_id, spec_label, spec_value) 
+                VALUES ($1, $2, $3)
+            `;
+
+            for (let s of specs) {
+                if (s.label && s.value) {
+                    await client.query(insertSpecSQL, [
+                        newProductId,
+                        s.label,
+                        s.value
+                    ]);
+                }
+            }
+        }
+
+        await client.query('COMMIT'); // Lưu thành công
+
+        res.status(201).json({
+            success: true,
+            message: "Thêm sản phẩm và cấu hình thành công!",
+            productId: newProductId
+        });
+
+    } catch (error) {
+        await client.query('ROLLBACK'); // Lỗi là hoàn tác 100%
+        console.error("Lỗi khi thêm sản phẩm:", error);
+        res.status(500).json({ success: false, error: "Lỗi hệ thống!" });
+    } finally {
+        client.release();
     }
 });
 

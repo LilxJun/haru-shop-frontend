@@ -58,110 +58,193 @@ document.addEventListener('DOMContentLoaded', async () => {
             descEl.innerHTML = productData.description || '';
         }
 
+        // 1. CẬP NHẬT SPECS THEO DATABASE MỚI (Dạng Object)
         if (productData.specs && Array.isArray(productData.specs) && specsEl) {
-            specsEl.innerHTML = productData.specs.map(s => `<li>${s}</li>`).join('');
+            specsEl.innerHTML = productData.specs.map(s =>
+                `<li><strong>${s.spec_label}:</strong> ${s.spec_value}</li>`
+            ).join('');
         }
 
-        // Vẽ Models
-        if (productData.models && Array.isArray(productData.models) && productData.models.length > 0) {
-            selectedModel = productData.models[0].name;
-            currentPrice = productData.models[0].price;
-            if (modelText) modelText.innerText = selectedModel;
-            if (modelContainer) {
-                modelContainer.innerHTML = productData.models.map((m, index) => `
-                    <button class="model-btn ${index === 0 ? 'active' : ''}" data-name="${m.name}" data-price="${m.price}">
-                        ${m.name}
-                    </button>
-                `).join('');
-            }
-        } else {
-            currentPrice = productData.price || 0;
-        }
+        // 2. XỬ LÝ BIẾN THỂ (VARIANTS) - TÁCH MODEL VÀ MÀU SẮC
+        if (productData.variants && Array.isArray(productData.variants) && productData.variants.length > 0) {
 
-        // ==========================================
-        // VẼ MÀU SẮC DẠNG ẢNH NHỎ (CHUẨN WLMOUSE)
-        // ==========================================
-        if (productData.colors && Array.isArray(productData.colors) && productData.colors.length > 0) {
-            selectedColor = productData.colors[0].name;
-            if (colorText) colorText.innerText = selectedColor;
-            if (colorContainer) {
-                colorContainer.innerHTML = productData.colors.map((c, index) => `
-                    <button class="color-variant-btn ${index === 0 ? 'active' : ''}" 
-                            data-name="${c.name}" 
-                            data-index="${index}"
-                            title="${c.name}">
-                        <img src="${c.image && c.image.startsWith('../') ? c.image : '../' + (c.image || productData.image)}" alt="${c.name}">
-                    </button>
-                `).join('');
-            }
-        }
+            // Lọc ra danh sách Model không trùng lặp
+            const uniqueModels = [...new Set(productData.variants.map(v => v.model_name).filter(Boolean))];
 
-        // Vẽ phần Thông tin mở rộng (Extended Info)
-        const extendedWrapper = document.getElementById('extended-info-wrapper');
-        if (extendedWrapper) {
-            if (productData.extended_info) {
-                let extInfo = productData.extended_info;
-                if (typeof extInfo === 'string') {
-                    try { extInfo = JSON.parse(extInfo); } catch (e) { extInfo = null; }
+            // Lọc ra danh sách Màu sắc không trùng lặp
+            const uniqueColors = [];
+            const colorNames = new Set();
+            productData.variants.forEach(v => {
+                if (v.color_name && !colorNames.has(v.color_name)) {
+                    colorNames.add(v.color_name);
+                    uniqueColors.push({ name: v.color_name, hex: v.color_hex, image: v.color_img });
                 }
+            });
 
-                if (extInfo) {
-                    let tableRows = '';
-                    if (extInfo.tableSpecs && Array.isArray(extInfo.tableSpecs)) {
-                        tableRows = extInfo.tableSpecs.map(spec => `<tr><td>${spec.label}</td><td>${spec.value}</td></tr>`).join('');
-                    }
-
-                    let highlightHTML = '';
-                    if (extInfo.highlights && Array.isArray(extInfo.highlights)) {
-                        highlightHTML = extInfo.highlights.map(hl => `
-                            <div class="highlight-item">
-                                <h3>${hl.value}</h3>
-                                <p>${hl.label}</p>
-                            </div>
-                        `).join('');
-                    }
-
-                    extendedWrapper.innerHTML = `
-                        <div class="extended-info-container">
-                            <div class="extended-top">
-                                <div class="extended-text">
-                                    <h4 class="sub-title">${extInfo.subTitle || ''}</h4>
-                                    <h2 class="main-title">${extInfo.mainTitle || ''}</h2>
-                                    <p class="desc-text">${extInfo.description || ''}</p>
-                                </div>
-                                <div class="extended-specs-box">
-                                    <table class="specs-table">
-                                        <tbody>${tableRows}</tbody>
-                                    </table>
-                                    <div class="view-more-btn">Xem thêm <i class="fas fa-chevron-down"></i></div>
-                                </div>
-                            </div>
-                            <div class="extended-highlights">
-                                ${highlightHTML}
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    extendedWrapper.innerHTML = '';
+            // Vẽ nút Model
+            if (uniqueModels.length > 0) {
+                selectedModel = uniqueModels[0];
+                if (modelText) modelText.innerText = selectedModel;
+                if (modelContainer) {
+                    modelContainer.innerHTML = uniqueModels.map((mName, index) => `
+                        <button class="model-btn ${index === 0 ? 'active' : ''}" data-name="${mName}">
+                            ${mName}
+                        </button>
+                    `).join('');
                 }
             } else {
-                extendedWrapper.innerHTML = '';
+                // Nếu sản phẩm không chia Model (chuột mặc định), ẩn luôn thẻ chứa Model
+                if (modelContainer) modelContainer.parentElement.style.display = 'none';
+                selectedModel = null;
             }
+
+            // Vẽ nút Màu sắc (Chuẩn WLMouse)
+            if (uniqueColors.length > 0) {
+                selectedColor = uniqueColors[0].name;
+                if (colorText) colorText.innerText = selectedColor;
+                if (colorContainer) {
+                    colorContainer.innerHTML = uniqueColors.map((c, index) => {
+                        let imgSrc = c.image && c.image.startsWith('../') ? c.image : '../' + (c.image || 'IMG/default.png');
+                        return `
+                        <button class="color-variant-btn ${index === 0 ? 'active' : ''}" 
+                                data-name="${c.name}" 
+                                title="${c.name}">
+                            <img src="${imgSrc}" alt="${c.name}">
+                        </button>
+                        `;
+                    }).join('');
+                }
+            }
+
+            // Gọi hàm chốt giá và ảnh dựa trên lựa chọn đầu tiên
+            updateVariantInfo();
+        } else {
+            // Trường hợp DB bị thiếu Variants (Phòng hờ)
+            currentPrice = productData.price || 0;
+            updatePriceDisplay();
         }
 
+        // Tải Gallery ảnh (giữ nguyên logic cũ của sếp)
         initImageGallery();
-        updatePriceDisplay();
         bindEvents();
+    }
+
+    // --- HÀM TÌM GIÁ VÀ CẬP NHẬT THEO TỔ HỢP MODEL + MÀU KHÁCH CHỌN ---
+    let currentVariantId = null; // Lưu lại ID biến thể để mốt ném vào Giỏ hàng
+
+    function updateVariantInfo() {
+        if (!productData.variants) return;
+
+        // Tìm đúng dòng Variant khớp với Model và Color đang chọn
+        const matchedVariant = productData.variants.find(v =>
+            (v.model_name === selectedModel || (!v.model_name && !selectedModel)) &&
+            v.color_name === selectedColor
+        );
+
+        if (matchedVariant) {
+            currentVariantId = matchedVariant.variant_id;
+            currentPrice = matchedVariant.price;
+            updatePriceDisplay();
+
+            // Đổi ảnh chính to đùng sang ảnh của màu đó
+            if (matchedVariant.color_img && mainImg) {
+                let imgPath = matchedVariant.color_img;
+                mainImg.src = imgPath.startsWith('../') ? imgPath : '../' + imgPath;
+            }
+        }
+    }
+
+    // CÁC SỰ KIỆN NÚT BẤM (Đã sửa lại để gọi updateVariantInfo)
+    function updatePriceDisplay() {
+        const formattedPrice = Number(currentPrice).toLocaleString('vi-VN');
+        const oldPrice = Number(currentPrice * 1.2).toLocaleString('vi-VN'); // Giả lập giá cũ cao hơn 20%
+        if (priceEl) priceEl.innerText = formattedPrice + ' Đ';
+        if (oldPriceEl) oldPriceEl.innerText = oldPrice + ' Đ';
+        const subtotal = Number(currentPrice) * quantity;
+        if (subtotalEl) subtotalEl.innerText = subtotal.toLocaleString('vi-VN') + ' Đ';
+    }
+
+    function bindEvents() {
+        // ... (Giữ nguyên các sự kiện bấm nút Next/Prev Gallery của sếp) ...
+
+        // Khách click chọn Model
+        document.querySelectorAll('.model-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                selectedModel = e.target.getAttribute('data-name');
+                if (modelText) modelText.innerText = selectedModel;
+
+                updateVariantInfo(); // Cập nhật lại giá
+            });
+        });
+
+        // Khách click chọn Màu
+        document.querySelectorAll('.color-variant-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const targetBtn = e.target.closest('.color-variant-btn');
+                if (!targetBtn) return;
+
+                document.querySelectorAll('.color-variant-btn').forEach(b => b.classList.remove('active'));
+                targetBtn.classList.add('active');
+                selectedColor = targetBtn.getAttribute('data-name');
+                if (colorText) colorText.innerText = selectedColor;
+
+                updateVariantInfo(); // Cập nhật lại giá và ảnh
+            });
+        });
+
+        // Tăng giảm số lượng (Giữ nguyên)
+        document.getElementById('btn-qty-minus')?.addEventListener('click', () => {
+            if (quantity > 1) { quantity--; if (qtyInput) qtyInput.value = quantity; updatePriceDisplay(); }
+        });
+        document.getElementById('btn-qty-plus')?.addEventListener('click', () => {
+            quantity++; if (qtyInput) qtyInput.value = quantity; updatePriceDisplay();
+        });
+
+        // Nút Thêm vào giỏ hàng
+        document.getElementById('btn-add-to-cart')?.addEventListener('click', async () => {
+            try {
+                // Sếp nhớ tạo Backend đón nhận body này nhé
+                const payload = {
+                    user_email: getLoggedInEmail(),
+                    product_id: productId,
+                    variant_id: currentVariantId, // Gửi thẳng mã biến thể qua cho BE
+                    quantity: quantity
+                };
+
+                const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/cart', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+                if (result.success) {
+                    alert(`Đã thêm vào giỏ hàng!`);
+                }
+            } catch (error) {
+                console.error("Lỗi:", error);
+            }
+        });
+
+        document.getElementById('btn-buy-now')?.addEventListener('click', () => {
+            document.getElementById('btn-add-to-cart').click();
+            setTimeout(() => { window.location.href = 'checkout.html'; }, 500);
+        });
     }
 
     // LOGIC GALLERY
     function initImageGallery() {
         galleryImages = [];
 
-        if (productData.colors && Array.isArray(productData.colors) && productData.colors.length > 0) {
-            productData.colors.forEach(c => {
-                let img = c.image || productData.image;
-                if (img) {
+        // Lọc ảnh từ mảng variants mới của Database
+        if (productData.variants && Array.isArray(productData.variants) && productData.variants.length > 0) {
+            const uniqueImages = new Set(); // Dùng Set để tránh trùng lặp ảnh nếu nhiều model xài chung 1 màu
+
+            productData.variants.forEach(v => {
+                let img = v.color_img || productData.image;
+                if (img && !uniqueImages.has(img)) {
+                    uniqueImages.add(img);
                     galleryImages.push(img.startsWith('../') ? img : '../' + img);
                 }
             });
@@ -173,6 +256,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         currentImageIndex = 0;
         updateGalleryUI();
     }
+
 
     function updateGalleryUI() {
         const galleryContainer = document.getElementById('thumbnail-gallery');
@@ -478,80 +562,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // 4. Xử lý Gửi Đánh Giá lên Server (Nhớ update lại hàm getLoggedInEmail ở đây)
-    submitReviewBtn.addEventListener('click', async () => {
-        const rating = document.getElementById('review-rating').value;
-        const comment = document.getElementById('review-comment').value.trim();
-        const userEmail = getLoggedInEmail(); // <--- Đổi thành hàm getLoggedInEmail
 
-        // ... (Giữ nguyên đoạn code kiểm tra và fetch gửi đánh giá bên dưới của sếp)
-        if (!comment) {
-            reviewErrorMsg.innerText = "Vui lòng nhập nội dung đánh giá!";
-            reviewErrorMsg.style.display = 'block';
-            return;
-        }
-
-        submitReviewBtn.disabled = true;
-        submitReviewBtn.innerText = "Đang gửi...";
-        reviewErrorMsg.style.display = 'none';
-
-        try {
-            const res = await fetch(`https://haru-shop-backend-production.up.railway.app/api/products/${productId}/reviews`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: userEmail, rating: rating, comment: comment })
-            });
-            const data = await res.json();
-
-            if (data.success) {
-                try {
-                    const res = await fetch(`https://haru-shop-backend-production.up.railway.app/api/products/${productId}/reviews`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ email: userEmail, rating: ratingHiddenInput.value, comment: comment })
-                    });
-                    const data = await res.json();
-
-                    if (data.success) {
-                        // XÓA ALERT CŨ, GỌI MODAL XỊN LÊN
-                        document.getElementById('success-modal').classList.add('active');
-
-                        // Ẩn form và dọn dẹp sạch sẽ
-                        reviewFormContainer.style.display = 'none';
-                        document.getElementById('review-comment').value = '';
-                        reviewErrorMsg.style.display = 'none'; // Đảm bảo giấu nhẹm cái chữ đỏ đi
-
-                        // Trả dàn sao về lại 5 sao mặc định
-                        selectedRating = 5;
-                        ratingHiddenInput.value = 5;
-                        colorizeStars(5);
-                        ratingTextDisplay.innerText = "Tuyệt vời";
-
-                        // Tải lại danh sách comment
-                        fetchReviews(productId);
-                    } else {
-                        reviewErrorMsg.innerText = data.message;
-                        reviewErrorMsg.style.display = 'block';
-                    }
-                } catch (err) {
-                    reviewErrorMsg.innerText = "Lỗi kết nối Server!";
-                    reviewErrorMsg.style.display = 'block';
-                } finally {
-                    submitReviewBtn.disabled = false;
-                    submitReviewBtn.innerText = "Gửi đánh giá";
-                }
-            } else {
-                reviewErrorMsg.innerText = data.message;
-                reviewErrorMsg.style.display = 'block';
-            }
-        } catch (err) {
-            reviewErrorMsg.innerText = "Lỗi kết nối Server!";
-            reviewErrorMsg.style.display = 'block';
-        } finally {
-            submitReviewBtn.disabled = false;
-            submitReviewBtn.innerText = "Gửi đánh giá";
-        }
-    });
 
     // 4. XỬ LÝ GỬI ĐÁNH GIÁ LÊN SERVER (BẢN CHỐT HẠ)
     submitReviewBtn.addEventListener('click', async () => {

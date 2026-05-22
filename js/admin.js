@@ -87,13 +87,13 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('add-form').addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // 3A. Gom dữ liệu Model (Vì model là tùy chọn nên có thể rỗng)
+        // 3A. Gom dữ liệu Model
         const modelItems = document.querySelectorAll('.model-item');
         let modelsArray = [];
         modelItems.forEach(item => {
             const mName = item.querySelector('.model-name').value.trim();
             if (mName) {
-                modelsArray.push({ name: mName });
+                modelsArray.push(mName);
             }
         });
 
@@ -114,39 +114,64 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const mainImage = colorsArray[0].image;
+        // Lấy giá và số lượng kho cấu hình cơ bản
+        const basePrice = document.getElementById('add-price').value;
+        const baseStock = document.getElementById('add-stock').value;
 
-        // 3C. Gom dữ liệu Specs (Thông số kỹ thuật)
+        // 3C. TẠO MẢNG BIẾN THỂ (VARIANTS) - ĐỂ PHÙ HỢP VỚI CẤU TRÚC DATABASE MỚI
+        let variantsList = [];
+        colorsArray.forEach(color => {
+            // Nếu sản phẩm có Model (ví dụ: Pro, Max)
+            if (modelsArray.length > 0) {
+                modelsArray.forEach(modelName => {
+                    variantsList.push({
+                        modelName: modelName,
+                        colorName: color.name,
+                        colorHex: color.hex,
+                        colorImg: color.image,
+                        price: basePrice, // Admin có thể set giá riêng trong tương lai, giờ dùng giá chung
+                        stock: baseStock
+                    });
+                });
+            } else {
+                // Nếu sản phẩm không có Model, chỉ lưu màu sắc
+                variantsList.push({
+                    modelName: null,
+                    colorName: color.name,
+                    colorHex: color.hex,
+                    colorImg: color.image,
+                    price: basePrice,
+                    stock: baseStock
+                });
+            }
+        });
+
+        // 3D. Gom dữ liệu Specs (Thông số kỹ thuật)
         const specItems = document.querySelectorAll('.spec-item');
-        let specsObject = {};
-        let hasSpecs = false;
+        let specsArray = [];
         specItems.forEach(item => {
             const sLabel = item.querySelector('.spec-label').value.trim();
             const sValue = item.querySelector('.spec-value').value.trim();
             if (sLabel && sValue) {
-                specsObject[sLabel] = sValue;
-                hasSpecs = true;
+                specsArray.push({ label: sLabel, value: sValue });
             }
         });
 
-        // 3D. Lấy dữ liệu Mô tả
+        // 3E. Lấy dữ liệu Mô tả
         const descriptionValue = document.getElementById('add-description').value.trim();
 
-        // Đóng gói sản phẩm mới
+        // 3F. Đóng gói sản phẩm mới (Chuẩn JSON cho Backend)
         const newProduct = {
             name: document.getElementById('add-name').value,
-            price: document.getElementById('add-price').value,
-            stock: document.getElementById('add-stock').value,
             category: document.getElementById('add-category').value,
-            image: mainImage,
-            colors: colorsArray,
-            models: modelsArray.length > 0 ? modelsArray : null,
-            specs: hasSpecs ? specsObject : null,
-            description: descriptionValue ? descriptionValue : null
+            description: descriptionValue ? descriptionValue : null,
+            variants: variantsList, // Gửi mảng variants đã được xử lý
+            specs: specsArray.length > 0 ? specsArray : null // Đổi thành Array thay vì Object để dễ loop bên Backend
         };
 
         try {
-            const res = await fetch('https://haru-shop-backend-production.up.railway.app/api/admin/products', {
+            // GỌI ĐÚNG ENDPOINT MỚI BÊN BACKEND (Sếp nhớ sửa lại endpoint này bên BE nhé)
+            const res = await fetch('https://haru-shop-backend-production.up.railway.app/api/products/add-complete', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newProduct)
