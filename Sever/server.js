@@ -530,17 +530,17 @@ app.post('/api/products/add-complete', async (req, res) => {
         await client.query('BEGIN'); // Bắt đầu Transaction
 
         // BƯỚC 1: Lưu thông tin cơ bản vào bảng 'products'
-        // Không chèn vào cột image nữa vì nó không tồn tại trong DB của sếp
         const defaultPrice = variants && variants.length > 0 ? variants[0].price : 0;
         const defaultStock = variants && variants.length > 0 ? variants[0].stock : 0;
 
+        // Xóa description khỏi đây luôn!
         const insertProductSQL = `
-            INSERT INTO products (name, category, description, price, stock) 
-            VALUES ($1, $2, $3, $4, $5) 
+            INSERT INTO products (name, category, price, stock) 
+            VALUES ($1, $2, $3, $4) 
             RETURNING id
         `;
-        // Truyền đúng 5 tham số cho 5 cột
-        const productResult = await client.query(insertProductSQL, [name, category, description, defaultPrice, defaultStock]);
+        // Tương ứng, chỉ truyền 4 giá trị vào đây
+        const productResult = await client.query(insertProductSQL, [name, category, defaultPrice, defaultStock]);
         const newProductId = productResult.rows[0].id;
 
         // BƯỚC 2: Lưu các biến thể (Màu, Model) vào bảng 'product_variants'
