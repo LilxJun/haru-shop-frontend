@@ -273,23 +273,25 @@ app.post('/api/products/:id/reviews', async (req, res) => {
 
 // API Thêm vào giỏ hàng
 app.post('/api/cart', async (req, res) => {
-    const { user_email, product_id, quantity, selected_model, selected_color } = req.body;
+    // Sửa lại: Nhận variant_id
+    const { user_email, product_id, quantity, variant_id } = req.body;
     try {
         const userRes = await pool.query('SELECT id FROM users WHERE email = $1', [user_email]);
         if (userRes.rows.length === 0) return res.status(404).json({ success: false, message: "User not found" });
         const userId = userRes.rows[0].id;
 
+        // Sửa câu lệnh INSERT INTO
         await pool.query(
-            `INSERT INTO cart (user_id, product_id, quantity, selected_model, selected_color) 
-             VALUES ($1, $2, $3, $4, $5) 
-             ON CONFLICT (user_id, product_id, selected_model, selected_color) 
+            `INSERT INTO cart (user_id, product_id, quantity, variant_id) 
+             VALUES ($1, $2, $3, $4) 
+             ON CONFLICT (user_id, product_id, variant_id) 
              DO UPDATE SET quantity = cart.quantity + EXCLUDED.quantity`,
-            [userId, product_id, quantity || 1, selected_model || 'Mặc định', selected_color || 'Mặc định']
+            [userId, product_id, quantity || 1, variant_id]
         );
         res.json({ success: true });
     } catch (err) {
         console.error("❌ LỖI THÊM VÀO GIỎ:", err.message);
-        res.status(500).json({ success: false });
+        res.status(500).json({ success: false, error: err.message });
     }
 });
 
@@ -301,12 +303,18 @@ app.get('/api/cart/:email', async (req, res) => {
         if (userRes.rows.length === 0) return res.json([]);
         const userId = userRes.rows[0].id;
 
+        // Câu SQL mới cực xịn: Kết nối (JOIN) 3 bảng cart, products, product_variants
         const cartRes = await pool.query(`
-            SELECT c.id, c.product_id, c.quantity, c.selected_model, c.selected_color,
-                   p.name AS product_name, p.price AS product_price, p.image AS product_image,
-                   p.colors AS product_colors
+            SELECT 
+                c.id, c.product_id, c.quantity, c.variant_id,
+                p.name AS product_name, 
+                COALESCE(pv.price, p.price) AS product_price, -- Nếu biến thể có giá riêng thì lấy, không thì lấy giá gốc
+                COALESCE(pv.color_img, p.image) AS product_image, -- Lấy ảnh biến thể
+                pv.model_name AS selected_model, 
+                pv.color_name AS selected_color
             FROM cart c
             JOIN products p ON c.product_id = p.id
+            LEFT JOIN product_variants pv ON c.variant_id = pv.variant_id
             WHERE c.user_id = $1
             ORDER BY c.id ASC
         `, [userId]);
