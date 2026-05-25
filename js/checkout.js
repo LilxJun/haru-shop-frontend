@@ -329,14 +329,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let discountPercent = 0;
     let isFreeship = false;
-    let appliedCouponCode = null; // Lưu lại mã để mốt gửi lên server lúc đặt hàng nếu cần
+    let appliedCouponCode = null;
 
     if (btnApplyDiscount && discountInput) {
         btnApplyDiscount.addEventListener('click', async () => {
             const code = discountInput.value.trim().toUpperCase();
 
             if (code === '') {
-                alert('Vui lòng nhập mã giảm giá!');
+                // ĐÃ SỬA: Thay alert bằng showLocalToast
+                showLocalToast('Vui lòng nhập mã giảm giá!', false);
                 return;
             }
 
@@ -345,7 +346,6 @@ document.addEventListener('DOMContentLoaded', () => {
             btnApplyDiscount.disabled = true;
 
             try {
-                // Hỏi Server xem mã này có thật không
                 const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/coupons/check', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -359,22 +359,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     isFreeship = data.is_freeship;
                     appliedCouponCode = code;
 
+                    // ĐÃ SỬA: Thay alert bằng showLocalToast
                     if (isFreeship) {
-                        alert('Áp dụng thành công! Bạn được miễn phí vận chuyển.');
+                        showLocalToast('Áp dụng thành công! Bạn được miễn phí vận chuyển.', true);
                     } else {
-                        alert(`Áp dụng thành công! Mã giảm ${discountPercent}% tổng đơn hàng.`);
+                        showLocalToast(`Áp dụng thành công! Mã giảm ${discountPercent}% tổng đơn hàng.`, true);
                     }
                 } else {
-                    alert(data.message); // Báo lỗi "Mã không tồn tại"
+                    // ĐÃ SỬA: Thay alert bằng showLocalToast
+                    showLocalToast(data.message, false);
                     discountPercent = 0;
                     isFreeship = false;
                     appliedCouponCode = null;
                 }
 
-                updateCosts(); // Cập nhật lại giao diện tính tiền
+                updateCosts();
             } catch (error) {
                 console.error("Lỗi kiểm tra mã:", error);
-                alert("Lỗi kết nối đến máy chủ!");
+                // ĐÃ SỬA: Thay alert bằng showLocalToast
+                showLocalToast("Lỗi kết nối đến máy chủ!", false);
             } finally {
                 btnApplyDiscount.innerText = originalBtnText;
                 btnApplyDiscount.disabled = false;
@@ -466,6 +469,56 @@ document.addEventListener('DOMContentLoaded', () => {
                 wardSelect.disabled = true;
             }
         });
+    }
+
+    // ==========================================
+    // THÔNG BÁO TOAST "NỀN TRẮNG, CHỮ ĐEN, TÍCH XANH LÁ" (Cho Checkout)
+    // ==========================================
+    function showLocalToast(message, isSuccess = true) {
+        let container = document.getElementById('haru-toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'haru-toast-container';
+            container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none;';
+            document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        const mainBgColor = '#ffffff';
+        const textColor = '#333333';
+        const accentColor = isSuccess ? '#4caf50' : '#f44336';
+
+        toast.style.cssText = `
+            background-color: ${mainBgColor}; 
+            color: ${textColor}; 
+            padding: 12px 20px; 
+            border-radius: 4px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+            display: flex; 
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-family: sans-serif;
+            transition: all 0.3s ease-in-out;
+            transform: translateX(100%);
+            opacity: 0;
+            border-left: 5px solid ${accentColor}; 
+        `;
+        toast.innerHTML = `
+            <i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-times-circle'}" style="font-size: 1.2rem; color: ${accentColor};"></i>
+            <span style="font-weight: 500;">${message}</span>
+        `;
+        container.appendChild(toast);
+
+        requestAnimationFrame(() => {
+            toast.style.transform = 'translateX(0)';
+            toast.style.opacity = '1';
+        });
+
+        setTimeout(() => {
+            toast.style.transform = 'translateX(100%)';
+            toast.style.opacity = '0';
+            setTimeout(() => { if (container.contains(toast)) toast.remove(); }, 300);
+        }, 3000);
     }
 
     // Khởi chạy khi vừa vào trang Checkout
