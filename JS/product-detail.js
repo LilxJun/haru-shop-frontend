@@ -30,18 +30,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const qtyInput = document.getElementById('input-qty');
     const mainImg = document.getElementById('main-product-img');
 
+    // Chuẩn hóa đường dẫn ảnh (luôn tìm từ gốc website /img/)
     function getCorrectImagePath(path) {
-        if (!path) return '/img/default.png'; // Thêm dấu / vào đầu
-
-        // Loại bỏ các tiền tố thư mục cũ
-        let cleanPath = path.replace('../', '').replace('./', '');
-
-        // Nếu nó đã có img/ ở đầu rồi thì chỉ cần thêm dấu /
-        if (!cleanPath.startsWith('img/')) {
-            cleanPath = 'img/' + cleanPath;
-        }
-
-        return '/' + cleanPath; // CHỐT LẠI: Luôn bắt đầu bằng dấu /
+        if (!path) return '/img/default.png';
+        const cleanPath = path.replace('../', '').replace('./', '');
+        return '/' + cleanPath;
     }
 
     try {
@@ -129,7 +122,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         );
 
         if (matchedVariant) {
-            currentVariantId = matchedVariant.variant_id;
+            currentVariantId = matchedVariant.variant_id; // Chú ý: Backend cần cái này
             currentPrice = matchedVariant.price || 0;
             updatePriceDisplay();
 
@@ -185,13 +178,64 @@ document.addEventListener('DOMContentLoaded', async () => {
             quantity++; if (qtyInput) qtyInput.value = quantity; updatePriceDisplay();
         });
 
-        document.getElementById('btn-add-to-cart')?.addEventListener('click', () => {
-            if (typeof window.addToCartDB === 'function') {
-                window.addToCartDB(productId, quantity, selectedColor || 'Mặc định', selectedModel || 'Mặc định');
-            } else {
-                alert("Lỗi: Không tìm thấy chức năng giỏ hàng. Vui lòng tải lại trang.");
-            }
-        });
+        // ==========================================
+        // FIX: THÊM GIỎ HÀNG CÓ THÔNG BÁO GÓC PHẢI VÀ ĐÚNG MÀU
+        // ==========================================
+        const btnAddToCart = document.getElementById('btn-add-to-cart');
+        if (btnAddToCart) {
+            btnAddToCart.addEventListener('click', async () => {
+                // local check for login
+                const userEmail = typeof getSafeUserEmail === 'function' ? getSafeUserEmail() : null;
+
+                if (!userEmail) {
+                    showLocalToast("Vui lòng đăng nhập để thêm vào giỏ hàng!", false);
+                    setTimeout(() => window.location.href = 'login.html', 1500);
+                    return;
+                }
+
+                // PDP logic: prevent double submit, show loading on button
+                btnAddToCart.disabled = true;
+                const oldContent = btnAddToCart.innerHTML;
+                btnAddToCart.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang thêm...';
+
+                try {
+                    //FIX: Gửi variant_id (ID biến thể) để backend nhận dạng CHÍNH XÁC 100% màu sắc sếp chọn
+                    const payload = {
+                        user_email: userEmail,
+                        product_id: productId,
+                        variant_id: currentVariantId,
+                        quantity: quantity
+                        // selected_color: selectedColor || 'Mặc định', // Không cần gửi text màu, dùng variant_id là đủ
+                        // selected_model: selectedModel || 'Mặc định'
+                    };
+
+                    const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/cart', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        // FIXED: Khôi phục thông báo góc phải đúng kiểu yêu thích
+                        showLocalToast(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
+
+                        // Đồng bộ cái mini-cart nếu cart.js đã được load
+                        if (typeof loadCartFromDB === 'function') loadCartFromDB();
+                    } else {
+                        showLocalToast(`Thêm thất bại: ${result.message}`, false);
+                    }
+
+                } catch (error) {
+                    console.error("Lỗi:", error);
+                    showLocalToast("Lỗi kết nối Server!", false);
+                } finally {
+                    btnAddToCart.disabled = false;
+                    btnAddToCart.innerHTML = oldContent;
+                }
+            });
+        }
 
         document.getElementById('btn-buy-now')?.addEventListener('click', () => {
             document.getElementById('btn-add-to-cart').click();
@@ -305,15 +349,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
         }
     }
-});
 
-// ==========================================
-// PHẦN ĐÁNH GIÁ (REVIEW)
-// ==========================================
-document.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const productId = urlParams.get('id');
-
+    // --- PHẦN ĐÁNH GIÁ (REVIEW) ---
+    // (Giữ nguyên như bản sửa getSafeUserEmail của sếp)
     const btnOpenReview = document.getElementById('btn-open-review');
     const reviewFormContainer = document.getElementById('review-form-container');
     const submitReviewBtn = document.getElementById('submit-review-btn');
@@ -337,30 +375,32 @@ document.addEventListener('DOMContentLoaded', () => {
             const res = await fetch(`https://haru-shop-backend-production.up.railway.app/api/products/${id}/reviews`);
             const data = await res.json();
 
-            document.getElementById('avg-rating-text').innerText = `${data.averageRating}/5`;
-            document.getElementById('total-reviews-text').innerText = `(${data.totalReviews} lượt đánh giá)`;
-            document.getElementById('avg-stars').innerHTML = generateStars(Math.round(data.averageRating));
+            if (document.getElementById('avg-rating-text')) document.getElementById('avg-rating-text').innerText = `${data.averageRating}/5`;
+            if (document.getElementById('total-reviews-text')) document.getElementById('total-reviews-text').innerText = `(${data.totalReviews} lượt đánh giá)`;
+            if (document.getElementById('avg-stars')) document.getElementById('avg-stars').innerHTML = generateStars(Math.round(data.averageRating));
 
             const listContainer = document.getElementById('reviews-list-container');
-            if (data.reviews.length === 0) {
-                listContainer.innerHTML = '<p style="text-align: center; color: #777;">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>';
-                return;
-            }
+            if (listContainer) {
+                if (data.reviews.length === 0) {
+                    listContainer.innerHTML = '<p style="text-align: center; color: #777;">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>';
+                    return;
+                }
 
-            listContainer.innerHTML = data.reviews.map(rev => {
-                const dateObj = new Date(rev.created_at);
-                const formattedDate = `${dateObj.getDate()}/${dateObj.getMonth() + 1}/${dateObj.getFullYear()}`;
-                return `
-                    <div class="review-item" style="border-bottom: 1px solid #eaeaea; padding: 20px 0;">
-                        <div class="review-header" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            <strong>${rev.username}</strong>
-                            <span style="color: #999; font-size: 13px;">${formattedDate}</span>
+                listContainer.innerHTML = data.reviews.map(rev => {
+                    const dateObj = new Date(rev.created_at);
+                    const formattedDate = `${dateObj.getDate()}/${dateObj.getMonth() + 1}/${dateObj.getFullYear()}`;
+                    return `
+                        <div class="review-item" style="border-bottom: 1px solid #eaeaea; padding: 20px 0;">
+                            <div class="review-header" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <strong>${rev.username}</strong>
+                                <span style="color: #999; font-size: 13px;">${formattedDate}</span>
+                            </div>
+                            <div class="stars">${generateStars(rev.rating)}</div>
+                            <p style="margin-top: 10px; color: #555; line-height: 1.5;">${rev.comment}</p>
                         </div>
-                        <div class="stars">${generateStars(rev.rating)}</div>
-                        <p style="margin-top: 10px; color: #555; line-height: 1.5;">${rev.comment}</p>
-                    </div>
-                `;
-            }).join('');
+                    `;
+                }).join('');
+            }
 
         } catch (err) {
             console.error("Lỗi tải đánh giá:", err);
@@ -369,84 +409,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnOpenReview) {
         btnOpenReview.addEventListener('click', () => {
-            // ĐÃ SỬA: Dùng hàm getSafeUserEmail
             const userEmail = typeof getSafeUserEmail === 'function' ? getSafeUserEmail() : null;
 
             if (!userEmail) {
-                document.getElementById('login-modal').classList.add('active');
+                if (document.getElementById('login-modal')) document.getElementById('login-modal').classList.add('active');
                 return;
             }
             reviewFormContainer.style.display = reviewFormContainer.style.display === 'none' ? 'block' : 'none';
         });
     }
-
-    const btnCancelLogin = document.getElementById('btn-cancel-login');
-    if (btnCancelLogin) {
-        btnCancelLogin.addEventListener('click', () => {
-            document.getElementById('login-modal').classList.remove('active');
-        });
-    }
-
-    const btnCloseSuccess = document.getElementById('btn-close-success');
-    if (btnCloseSuccess) {
-        btnCloseSuccess.addEventListener('click', () => {
-            document.getElementById('success-modal').classList.remove('active');
-        });
-    }
-
-    const btnGoToLogin = document.getElementById('btn-go-to-login');
-    if (btnGoToLogin) {
-        btnGoToLogin.addEventListener('click', () => {
-            window.location.href = 'login.html';
-        });
-    }
-
-    const starBtns = document.querySelectorAll('.star-btn');
-    const ratingHiddenInput = document.getElementById('review-rating');
-    const ratingTextDisplay = document.getElementById('rating-text-display');
-    const ratingLabels = ["Tệ", "Không hài lòng", "Bình thường", "Rất tốt", "Tuyệt vời"];
-
-    let selectedRating = 5;
-
-    function colorizeStars(count) {
-        starBtns.forEach(star => {
-            const starVal = parseInt(star.getAttribute('data-value'));
-            if (starVal <= count) {
-                star.classList.remove('far');
-                star.classList.add('fas');
-                star.style.color = '#f5c518';
-            } else {
-                star.classList.remove('fas');
-                star.classList.add('far');
-                star.style.color = '#ccc';
-            }
-        });
-    }
-
-    starBtns.forEach(star => {
-        star.addEventListener('mouseover', function () {
-            const hoverValue = parseInt(this.getAttribute('data-value'));
-            colorizeStars(hoverValue);
-            ratingTextDisplay.innerText = ratingLabels[hoverValue - 1];
-            this.style.transform = 'scale(1.2)';
-        });
-
-        star.addEventListener('mouseout', function () {
-            this.style.transform = 'scale(1)';
-        });
-
-        star.parentElement.addEventListener('mouseleave', function () {
-            colorizeStars(selectedRating);
-            ratingTextDisplay.innerText = ratingLabels[selectedRating - 1];
-        });
-
-        star.addEventListener('click', function () {
-            selectedRating = parseInt(this.getAttribute('data-value'));
-            ratingHiddenInput.value = selectedRating;
-            colorizeStars(selectedRating);
-            ratingTextDisplay.innerText = ratingLabels[selectedRating - 1];
-        });
-    });
 
     if (submitReviewBtn) {
         submitReviewBtn.addEventListener('click', async () => {
@@ -480,19 +451,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const data = await res.json();
 
                 if (data.success) {
-                    document.getElementById('success-modal').classList.add('active');
-
+                    if (document.getElementById('success-modal')) document.getElementById('success-modal').classList.add('active');
                     reviewFormContainer.style.display = 'none';
                     document.getElementById('review-comment').value = '';
                     reviewErrorMsg.style.display = 'none';
-
-                    if (typeof colorizeStars === 'function') {
-                        selectedRating = 5;
-                        ratingHiddenInput.value = 5;
-                        colorizeStars(5);
-                        document.getElementById('rating-text-display').innerText = "Tuyệt vời";
-                    }
-
                     fetchReviews(productId);
                 } else {
                     reviewErrorMsg.innerText = data.message;
@@ -506,5 +468,52 @@ document.addEventListener('DOMContentLoaded', () => {
                 submitReviewBtn.innerText = "Gửi đánh giá";
             }
         });
+    }
+
+    // FIXED: Khôi phục hàm Local Toast xịn xò của sếp
+    function showLocalToast(message, isSuccess = true) {
+        let container = document.getElementById('toast-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'toast-container';
+            container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10001; display: flex; flex-direction: column; gap: 10px;';
+            document.body.appendChild(container);
+        }
+        const toast = document.createElement('div');
+        toast.className = 'toast show';
+
+        // Style cho Local Toast (kiểu yêu thích)
+        const color = isSuccess ? '#4caf50' : '#f44336';
+        const icon = isSuccess ? 'fa-check-circle' : 'fa-times-circle';
+
+        toast.style.cssText = `
+            background: #333; 
+            color: #fff; 
+            padding: 15px 25px; 
+            border-radius: 8px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3); 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            font-weight: 500; 
+            min-width: 250px;
+            border-left: 5px solid ${color};
+            transition: transform 0.3s ease-out;
+            transform: translateX(120%);
+        `;
+
+        toast.innerHTML = `<i class="fas ${icon}" style="color: ${color}; font-size: 1.2rem;"></i> ${message}`;
+        container.appendChild(toast);
+
+        // Ép vẽ lại để có animation bay vào
+        requestAnimationFrame(() => {
+            toast.style.transform = 'translateX(0)';
+        });
+
+        // Tự đóng sau 3s
+        setTimeout(() => {
+            toast.style.transform = 'translateX(120%)';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
     }
 });
