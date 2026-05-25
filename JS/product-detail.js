@@ -179,12 +179,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         // ==========================================
-        // FIX: THÊM GIỎ HÀNG CÓ THÔNG BÁO GÓC PHẢI VÀ ĐÚNG MÀU
+        // FIX: THÊM GIỎ HÀNG, HIỆN TOAST CHUẨN & LOAD CART TỨC THÌ
         // ==========================================
         const btnAddToCart = document.getElementById('btn-add-to-cart');
         if (btnAddToCart) {
             btnAddToCart.addEventListener('click', async () => {
-                // local check for login
                 const userEmail = typeof getSafeUserEmail === 'function' ? getSafeUserEmail() : null;
 
                 if (!userEmail) {
@@ -193,20 +192,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                     return;
                 }
 
-                // PDP logic: prevent double submit, show loading on button
                 btnAddToCart.disabled = true;
                 const oldContent = btnAddToCart.innerHTML;
                 btnAddToCart.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang thêm...';
 
                 try {
-                    //FIX: Gửi variant_id (ID biến thể) để backend nhận dạng CHÍNH XÁC 100% màu sắc sếp chọn
                     const payload = {
                         user_email: userEmail,
                         product_id: productId,
                         variant_id: currentVariantId,
                         quantity: quantity
-                        // selected_color: selectedColor || 'Mặc định', // Không cần gửi text màu, dùng variant_id là đủ
-                        // selected_model: selectedModel || 'Mặc định'
                     };
 
                     const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/cart', {
@@ -217,15 +212,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                     const result = await response.json();
 
-                    // if (result.success) {
-                    //     // FIXED: Khôi phục thông báo góc phải đúng kiểu yêu thích
-                    //     showLocalToast(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
+                    if (result.success) {
+                        // 1. Hiện thông báo liền
+                        showLocalToast(`Đã thêm vào giỏ hàng!`);
 
-                    //     // Đồng bộ cái mini-cart nếu cart.js đã được load
-                    //     if (typeof loadCartFromDB === 'function') loadCartFromDB();
-                    // } else {
-                    //     showLocalToast(`Thêm thất bại: ${result.message}`, false);
-                    // }
+                        // 2. Ép load lại giỏ hàng NGAY LẬP TỨC (không chờ mở)
+                        if (typeof window.loadCartFromDB === 'function') {
+                            window.loadCartFromDB();
+                        }
+                    } else {
+                        showLocalToast(`Thêm thất bại: ${result.message}`, false);
+                    }
 
                 } catch (error) {
                     console.error("Lỗi:", error);
@@ -471,28 +468,60 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // ==========================================
-    // FIXED: THÔNG BÁO CHUẨN FORM CỦA SẾP (GIỐNG WISHLIST)
+    // FIXED: THÔNG BÁO TOAST "XANH MƯỢT" KIỂU WISHLIST (KHÔNG PHỤ THUỘC CSS BÊN NGOÀI)
     // ==========================================
     function showLocalToast(message, isSuccess = true) {
-        let container = document.getElementById('toast-container');
+        let container = document.getElementById('haru-toast-container');
+
         if (!container) {
             container = document.createElement('div');
-            container.id = 'toast-container';
+            container.id = 'haru-toast-container';
+            // Vị trí góc trên bên phải
+            container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none;';
             document.body.appendChild(container);
         }
 
         const toast = document.createElement('div');
-        // Dùng đúng class 'toast show success' để ăn CSS có sẵn của sếp
-        toast.className = isSuccess ? 'toast show success' : 'toast show removed';
 
-        const icon = isSuccess ? 'fa-check-circle' : 'fa-times-circle';
-        toast.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
+        // CSS Style copy y chang màu xanh báo success của Wishlist
+        const bgColor = isSuccess ? '#4caf50' : '#f44336';
+
+        toast.style.cssText = `
+            background-color: ${bgColor}; 
+            color: #fff; 
+            padding: 12px 20px; 
+            border-radius: 4px; 
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            display: flex; 
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-family: sans-serif;
+            transition: all 0.3s ease-in-out;
+            transform: translateX(100%);
+            opacity: 0;
+        `;
+
+        toast.innerHTML = `
+            <i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-times-circle'}" style="font-size: 1.2rem;"></i>
+            <span>${message}</span>
+        `;
 
         container.appendChild(toast);
 
+        // Ép vẽ lại để có animation
+        requestAnimationFrame(() => {
+            toast.style.transform = 'translateX(0)';
+            toast.style.opacity = '1';
+        });
+
+        // Tự đóng sau 3 giây
         setTimeout(() => {
-            toast.classList.remove('show');
-            setTimeout(() => toast.remove(), 500);
+            toast.style.transform = 'translateX(100%)';
+            toast.style.opacity = '0';
+            setTimeout(() => {
+                if (container.contains(toast)) toast.remove();
+            }, 300);
         }, 3000);
     }
 });
