@@ -185,41 +185,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             quantity++; if (qtyInput) qtyInput.value = quantity; updatePriceDisplay();
         });
 
-        document.getElementById('btn-add-to-cart')?.addEventListener('click', async () => {
-            // ĐÃ SỬA: SỬ DỤNG HÀM getSafeUserEmail CỦA CART.JS
-            const userEmail = typeof getSafeUserEmail === 'function' ? getSafeUserEmail() : null;
-
-            if (!userEmail) {
-                alert("Vui lòng đăng nhập để thêm vào giỏ hàng!");
-                return;
-            }
-
-            try {
-                const payload = {
-                    user_email: userEmail,
-                    product_id: productId,
-                    variant_id: currentVariantId,
-                    quantity: quantity
-                };
-
-                const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/cart', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-                if (result.success) {
-                    if (typeof showToast === 'function') {
-                        showToast(`Đã thêm vào giỏ hàng thành công!`);
-                        if (typeof loadCartFromDB === 'function') loadCartFromDB();
-                    } else {
-                        alert("Đã thêm vào giỏ hàng!");
-                    }
-                } else {
-                    alert('Thêm giỏ hàng thất bại: ' + result.message);
-                }
-            } catch (error) {
-                console.error("Lỗi:", error);
+        document.getElementById('btn-add-to-cart')?.addEventListener('click', () => {
+            if (typeof window.addToCartDB === 'function') {
+                window.addToCartDB(productId, quantity, selectedColor || 'Mặc định', selectedModel || 'Mặc định');
+            } else {
+                alert("Lỗi: Không tìm thấy chức năng giỏ hàng. Vui lòng tải lại trang.");
             }
         });
 
