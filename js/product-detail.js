@@ -476,22 +476,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!container) {
             container = document.createElement('div');
             container.id = 'haru-toast-container';
-            // Vị trí góc trên bên phải
             container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none;';
             document.body.appendChild(container);
         }
 
         const toast = document.createElement('div');
 
-        // CSS Style copy y chang màu xanh báo success của Wishlist
-        const bgColor = isSuccess ? '#4caf50' : '#f44336';
+        // 1. Bảng màu mới theo ý sếp
+        const mainBgColor = '#ffffff'; // Nền trắng
+        const textColor = '#333333';   // Chữ đen (dùng mã 333 cho dịu mắt)
+        const accentColor = isSuccess ? '#4caf50' : '#f44336'; // Icon xanh lá hoặc đỏ
 
+        // 2. CSS Style
         toast.style.cssText = `
-            background-color: ${bgColor}; 
-            color: #fff; 
+            background-color: ${mainBgColor}; 
+            color: ${textColor}; 
             padding: 12px 20px; 
             border-radius: 4px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            /* Tăng bóng đổ để nền trắng nổi bật, không bị chìm vào web */
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
             display: flex; 
             align-items: center;
             gap: 10px;
@@ -500,16 +503,18 @@ document.addEventListener('DOMContentLoaded', async () => {
             transition: all 0.3s ease-in-out;
             transform: translateX(100%);
             opacity: 0;
+            border-left: 5px solid ${accentColor}; 
         `;
 
+        // 3. Nội dung Toast: Icon tô màu xanh lá, chữ đen in đậm nhẹ
         toast.innerHTML = `
-            <i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-times-circle'}" style="font-size: 1.2rem;"></i>
-            <span>${message}</span>
+            <i class="fas ${isSuccess ? 'fa-check-circle' : 'fa-times-circle'}" style="font-size: 1.2rem; color: ${accentColor};"></i>
+            <span style="font-weight: 500;">${message}</span>
         `;
 
         container.appendChild(toast);
 
-        // Ép vẽ lại để có animation
+        // Animation bay vào
         requestAnimationFrame(() => {
             toast.style.transform = 'translateX(0)';
             toast.style.opacity = '1';
