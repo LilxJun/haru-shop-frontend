@@ -217,15 +217,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                     const result = await response.json();
 
-                    if (result.success) {
-                        // FIXED: Khôi phục thông báo góc phải đúng kiểu yêu thích
-                        showLocalToast(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
+                    // if (result.success) {
+                    //     // FIXED: Khôi phục thông báo góc phải đúng kiểu yêu thích
+                    //     showLocalToast(`Đã thêm ${quantity} sản phẩm vào giỏ hàng!`);
 
-                        // Đồng bộ cái mini-cart nếu cart.js đã được load
-                        if (typeof loadCartFromDB === 'function') loadCartFromDB();
-                    } else {
-                        showLocalToast(`Thêm thất bại: ${result.message}`, false);
-                    }
+                    //     // Đồng bộ cái mini-cart nếu cart.js đã được load
+                    //     if (typeof loadCartFromDB === 'function') loadCartFromDB();
+                    // } else {
+                    //     showLocalToast(`Thêm thất bại: ${result.message}`, false);
+                    // }
 
                 } catch (error) {
                     console.error("Lỗi:", error);
