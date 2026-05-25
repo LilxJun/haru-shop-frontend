@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let isNameOk = false;
             if (!ho || !ten) {
-                alert("Vui lòng nhập đầy đủ Họ và Tên để giao hàng!");
+                showLocalToast("Vui lòng nhập đầy đủ Họ và Tên để giao hàng!", false); // Đã thay bằng Toast xịn
                 if (hoInput && !ho) hoInput.classList.add('input-error');
                 if (tenInput && !ten) tenInput.classList.add('input-error');
             } else {
@@ -114,39 +114,49 @@ document.addEventListener('DOMContentLoaded', () => {
             const isAddressOk = validateField('address', 'group-address');
             const isPhoneOk = validateField('phone', 'group-phone');
 
-            // 3. Nếu tất cả đều OK thì gom data
+            // 3. Nếu TẤT CẢ ĐỀU OK thì mới gom data, CÒN KHÔNG THÌ DỪNG LUÔN
             if (isEmailOk && isNameOk && isProvinceOk && isDistrictOk && isWardOk && isAddressOk && isPhoneOk) {
+
+                // MỘT SỰ THẬT: Chỉ khi nào lấy được Element thì mới .value
+                const addressEl = document.getElementById('address');
+                const wardEl = document.getElementById('ward');
+                const districtEl = document.getElementById('district');
+                const provinceEl = document.getElementById('province');
+                const phoneEl = document.getElementById('phone');
+
+                // Bảo vệ thêm 1 lớp nữa cho chắc cú
+                if (!addressEl || !wardEl || !districtEl || !provinceEl || !phoneEl) {
+                    showLocalToast("Lỗi hệ thống: Không tìm thấy trường dữ liệu!", false);
+                    return;
+                }
+
                 const submitBtn = document.querySelector('.btn-pay-now');
 
-                // Gom dữ liệu địa chỉ và tiền
-                const fullAddress = `${document.getElementById('address').value.trim()}, ${document.getElementById('ward').value}, ${document.getElementById('district').value}`;
-                const cityName = document.getElementById('province').value;
+                // Gom dữ liệu địa chỉ và tiền (ĐÃ BẢO VỆ)
+                const fullAddress = `${addressEl.value.trim()}, ${wardEl.value}, ${districtEl.value}`;
+                const cityName = provinceEl.value;
                 const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
                 const finalTotal = (subtotal - (subtotal * discountPercent / 100)) + shippingCost;
 
                 // ĐÓNG GÓI DỮ LIỆU ĐỂ GỬI LÊN SERVER
                 pendingOrderData = {
                     email: currentUserEmail,
-                    customer_name: fullName, // <-- Gửi tên đã ghép (Ví dụ: "Độ Mixi")
-                    lastname: fullName,      // <-- Backup key cũ đề phòng backend cần
+                    customer_name: fullName,
+                    lastname: fullName,
                     address: fullAddress,
                     city: cityName,
-                    phone: document.getElementById('phone').value.trim(),
+                    phone: phoneEl.value.trim(),
                     shipping_fee: shippingCost,
                     total_amount: finalTotal,
                     payment_method: paymentMethod
                 };
 
                 // KIỂM TRA PHƯƠNG THỨC THANH TOÁN
-
-                // KIỂM TRA PHƯƠNG THỨC THANH TOÁN
                 if (paymentMethod === 'cod') {
-                    // Nếu là Tiền mặt -> Xử lý lưu DB luôn
                     submitBtn.innerText = 'Đang xử lý đơn hàng...';
                     submitBtn.disabled = true;
                     await processOrderToServer(pendingOrderData, submitBtn);
                 } else {
-                    // Nếu là MoMo hoặc Ngân hàng -> Bật bảng QR Code lên
                     const title = document.getElementById('payment-modal-title');
                     const appName = document.getElementById('payment-app-name');
 
@@ -158,17 +168,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         appName.innerText = 'App Ngân Hàng';
                     }
 
-                    // Hiện số tiền lên bảng
                     document.getElementById('payment-amount-display').innerText = finalTotal.toLocaleString('vi-VN') + ' Đ';
-
-                    // Tạo mã giao dịch ngẫu nhiên cho ngầu (Ví dụ: HARU_17382)
                     document.getElementById('payment-memo').innerText = 'HARU_' + Math.floor(Math.random() * 90000 + 10000);
-
-                    // Mở modal lên
                     paymentModal.classList.add('active');
                 }
             } else {
+                // NẾU CÓ LỖI (Thiếu thông tin) -> Cuộn lên đầu trang và báo lỗi bằng Toast thay vì alert
                 window.scrollTo({ top: 100, behavior: 'smooth' });
+                showLocalToast("Vui lòng điền đầy đủ và chính xác thông tin giao hàng!", false);
             }
         });
     }
