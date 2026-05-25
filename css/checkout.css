@@ -326,6 +326,13 @@ select {
     border: 1px solid #d9d9d9;
     padding: 10px;
     border-radius: 5px;
+    color: #000 !important;
+    /* Thêm dòng này để ép chữ thành màu đen */
+}
+
+/* Nếu sếp muốn đổi màu chữ cái placeholder mờ mờ luôn thì thêm đoạn này */
+.discount-section input::placeholder {
+    color: #666;
 }
 
 .btn-apply-discount {
@@ -483,4 +490,48 @@ select {
     background: #059669;
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* =======================================
+   FIX GIAO DIỆN Ô CHỌN TỈNH/THÀNH PHỐ
+   ======================================= */
+.haru-select {
+    width: 100%;
+    padding: 14px;
+    background-color: transparent;
+    border: 1px solid #333b4d;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.3s;
+    appearance: none;
+    /* Xóa mũi tên mặc định */
+    /* Mũi tên chỉ xuống màu trắng cho hợp nền đen */
+    background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23fff%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E');
+    background-repeat: no-repeat;
+    background-position: right .7em top 50%;
+    background-size: .65em auto;
+}
+
+.haru-select:focus {
+    border-color: #5c8df6;
+}
+
+.haru-select:disabled {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: #666;
+    cursor: not-allowed;
+}
+
+/* Fix lỗi viền đỏ khi có lỗi validate */
+.has-error .haru-select {
+    border-color: #ff4d4f !important;
+    box-shadow: 0 0 0 1px #ff4d4f !important;
+}
+
+/* Màu chữ khi xổ dropdown ra (Nền trắng chữ đen cho dễ đọc) */
+.haru-select option {
+    background-color: #fff;
+    color: #333;
 }
