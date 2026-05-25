@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const currentUserEmail = getSafeUserEmail();
 
-    // Nếu lọt vào đây mà chưa đăng nhập thì đuổi ra trang Login ngay
     if (!currentUserEmail) {
         alert("Vui lòng đăng nhập để thanh toán!");
         window.location.href = 'login.html';
@@ -29,13 +28,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const checkoutForm = document.getElementById('checkout-form');
     const cartItemsContainer = document.querySelector('.checkout-cart-items');
 
-    // Tự động điền email vào form cho khách hàng đỡ mất công gõ
     const emailInputBox = document.getElementById('email');
     if (emailInputBox) {
         emailInputBox.value = currentUserEmail;
     }
 
-    // Các thẻ hiển thị tiền
     const costRows = document.querySelectorAll('.cost-row');
     const subtotalElement = costRows[0].querySelector('span:nth-child(2)');
     const shippingElement = costRows[1].querySelector('span:nth-child(2)');
@@ -64,7 +61,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Tự động xóa viền đỏ khi bắt đầu gõ
     const allInputs = document.querySelectorAll('#checkout-form input');
     allInputs.forEach(input => {
         input.addEventListener('input', function () {
@@ -75,14 +71,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================
-    // 3. XỬ LÝ KHI BẤM NÚT "THANH TOÁN NGAY" (CÓ MOMO/BANK)
+    // 3. XỬ LÝ KHI BẤM NÚT "THANH TOÁN NGAY" (ĐÃ XÓA PHẦN TRÙNG LẶP)
     // ==========================================
     const paymentModal = document.getElementById('payment-modal');
     const closePaymentBtn = document.getElementById('close-payment-btn');
     const btnConfirmPaid = document.getElementById('btn-confirm-paid');
-    let pendingOrderData = null; // Biến lưu tạm dữ liệu đơn hàng chờ quét mã xong mới gửi
+    let pendingOrderData = null;
 
-    // Tắt modal khi bấm nút X
     if (closePaymentBtn) closePaymentBtn.addEventListener('click', () => paymentModal.classList.remove('active'));
 
     if (checkoutForm) {
@@ -99,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let isNameOk = false;
             if (!ho || !ten) {
-                showLocalToast("Vui lòng nhập đầy đủ Họ và Tên để giao hàng!", false); // Đã thay bằng Toast xịn
+                showLocalToast("Vui lòng nhập đầy đủ Họ và Tên để giao hàng!", false);
                 if (hoInput && !ho) hoInput.classList.add('input-error');
                 if (tenInput && !ten) tenInput.classList.add('input-error');
             } else {
@@ -117,14 +112,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // 3. Nếu TẤT CẢ ĐỀU OK thì mới gom data, CÒN KHÔNG THÌ DỪNG LUÔN
             if (isEmailOk && isNameOk && isProvinceOk && isDistrictOk && isWardOk && isAddressOk && isPhoneOk) {
 
-                // MỘT SỰ THẬT: Chỉ khi nào lấy được Element thì mới .value
                 const addressEl = document.getElementById('address');
                 const wardEl = document.getElementById('ward');
                 const districtEl = document.getElementById('district');
                 const provinceEl = document.getElementById('province');
                 const phoneEl = document.getElementById('phone');
 
-                // Bảo vệ thêm 1 lớp nữa cho chắc cú
                 if (!addressEl || !wardEl || !districtEl || !provinceEl || !phoneEl) {
                     showLocalToast("Lỗi hệ thống: Không tìm thấy trường dữ liệu!", false);
                     return;
@@ -132,13 +125,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 const submitBtn = document.querySelector('.btn-pay-now');
 
-                // Gom dữ liệu địa chỉ và tiền (ĐÃ BẢO VỆ)
                 const fullAddress = `${addressEl.value.trim()}, ${wardEl.value}, ${districtEl.value}`;
                 const cityName = provinceEl.value;
                 const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
                 const finalTotal = (subtotal - (subtotal * discountPercent / 100)) + shippingCost;
 
-                // ĐÓNG GÓI DỮ LIỆU ĐỂ GỬI LÊN SERVER
                 pendingOrderData = {
                     email: currentUserEmail,
                     customer_name: fullName,
@@ -173,26 +164,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     paymentModal.classList.add('active');
                 }
             } else {
-                // NẾU CÓ LỖI (Thiếu thông tin) -> Cuộn lên đầu trang và báo lỗi bằng Toast thay vì alert
                 window.scrollTo({ top: 100, behavior: 'smooth' });
                 showLocalToast("Vui lòng điền đầy đủ và chính xác thông tin giao hàng!", false);
             }
         });
     }
 
-    // Khi khách bấm "TÔI ĐÃ CHUYỂN KHOẢN" trên bảng QR Code
     if (btnConfirmPaid) {
         btnConfirmPaid.addEventListener('click', async () => {
             const originalText = btnConfirmPaid.innerHTML;
             btnConfirmPaid.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang xác nhận...';
             btnConfirmPaid.disabled = true;
 
-            // Giả vờ chờ 2 giây cho giống đang check hệ thống ngân hàng thật
             setTimeout(async () => {
                 const submitBtn = document.querySelector('.btn-pay-now');
                 await processOrderToServer(pendingOrderData, submitBtn);
 
-                // Nếu thành công thì web tự chuyển trang rồi, nếu lỗi thì trả lại nút
                 btnConfirmPaid.innerHTML = originalText;
                 btnConfirmPaid.disabled = false;
                 paymentModal.classList.remove('active');
@@ -200,7 +187,44 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Hàm gọi API lưu vào Database (Tách ra để xài chung cho cả COD và MoMo)
+    // ==========================================
+    // 4. HÀM HIỂN THỊ POPUP & LƯU LÊN SERVER (ĐÃ FIX LỖI INDEX)
+    // ==========================================
+    function showSuccessOrderPopup(orderId) {
+        const popupHTML = `
+            <div id="haru-success-overlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; z-index: 100000; opacity: 0; transition: opacity 0.4s ease; backdrop-filter: blur(5px);">
+                <div style="background: #fff; padding: 40px; border-radius: 16px; text-align: center; max-width: 450px; width: 90%; transform: scale(0.8) translateY(20px); opacity: 0; transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 20px 40px rgba(0,0,0,0.2);">
+                    <div style="width: 80px; height: 80px; background: #e8f5e9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                        <i class="fas fa-check" style="font-size: 40px; color: #4caf50;"></i>
+                    </div>
+                    <h2 style="color: #333; margin-bottom: 15px; font-size: 24px; font-weight: 700;">Đặt hàng thành công!</h2>
+                    <p style="color: #666; font-size: 15px; margin-bottom: 25px; line-height: 1.6;">
+                        Cảm ơn bạn đã mua sắm tại Haru Shop.<br>
+                        Mã đơn hàng của bạn là: <strong style="color: #0b1120;">#${orderId}</strong>
+                    </p>
+                    <button id="btn-back-home" style="background: #0b1120; color: #fff; border: none; padding: 14px 30px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.3s; width: 100%;">
+                        Quay về trang chủ
+                    </button>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', popupHTML);
+
+        const overlay = document.getElementById('haru-success-overlay');
+        const popupContent = overlay.querySelector('div');
+
+        requestAnimationFrame(() => {
+            overlay.style.opacity = '1';
+            popupContent.style.transform = 'scale(1) translateY(0)';
+            popupContent.style.opacity = '1';
+        });
+
+        document.getElementById('btn-back-home').addEventListener('click', () => {
+            window.location.href = 'index.html'; // ĐÃ FIX INDEX.HTML
+        });
+    }
+
     async function processOrderToServer(orderData, submitBtn) {
         try {
             const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/orders', {
@@ -211,21 +235,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
 
             if (result.success) {
-                alert(`🎉 Đặt hàng thành công! Mã đơn: #${result.orderId}\nHaru Shop sẽ đóng gói và giao đến bạn sớm nhất.`);
-                window.location.href = 'Index.HTML';
+                showSuccessOrderPopup(result.orderId); // GỌI POPUP XỊN
             } else {
-                alert("Lỗi hệ thống: " + result.message);
+                showLocalToast("Lỗi hệ thống: " + result.message, false);
                 if (submitBtn) { submitBtn.innerText = 'Thanh toán ngay'; submitBtn.disabled = false; }
             }
         } catch (error) {
             console.error("Lỗi khi chốt đơn:", error);
-            alert("Mất kết nối với máy chủ!");
+            showLocalToast("Mất kết nối với máy chủ!", false);
             if (submitBtn) { submitBtn.innerText = 'Thanh toán ngay'; submitBtn.disabled = false; }
         }
     }
 
     // ==========================================
-    // 4. LẤY DỮ LIỆU TỪ DATABASE VÀ VẼ RA CỘT BÊN PHẢI
+    // 5. LẤY DỮ LIỆU TỪ DATABASE VÀ VẼ RA CỘT BÊN PHẢI
     // ==========================================
     async function loadCheckoutCart() {
         try {
@@ -252,7 +275,6 @@ document.addEventListener('DOMContentLoaded', () => {
             subtotal += Number(item.product_price) * item.quantity;
             const formattedPrice = Number(item.product_price).toLocaleString('vi-VN');
 
-            // --- BỌC LẠI BẰNG TRY-CATCH CHO AN TOÀN NHƯ FILE CART.JS ---
             let finalImage = item.product_image;
             if (item.product_colors && item.selected_color && item.selected_color !== 'Mặc định') {
                 try {
@@ -268,13 +290,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
-            // Đảm bảo không bị gãy link ảnh
             let imgSrc = '../IMG/default.png';
             if (finalImage) {
                 imgSrc = finalImage.startsWith('../') ? finalImage : '../' + finalImage;
             }
 
-            // --- XỬ LÝ TEXT PHIÊN BẢN / MÀU SẮC ---
             let variantHTML = '';
             let textParts = [];
 
@@ -289,7 +309,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 variantHTML = `<p style="font-size: 12px; color: #737373; margin-top: 4px;">${textParts.join(' / ')}</p>`;
             }
 
-            // Gắn HTML
             const itemHTML = `
                 <div class="checkout-item">
                     <div class="item-image-wrapper">
@@ -312,87 +331,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
-    // 5. CẬP NHẬT TỔNG TIỀN VÀ PHÍ VẬN CHUYỂN
+    // 6. CẬP NHẬT TỔNG TIỀN VÀ PHÍ VẬN CHUYỂN
     // ==========================================
-    function updateCosts() {
-        const total = subtotal + shippingCost;
-        if (subtotalElement) subtotalElement.innerText = subtotal.toLocaleString('vi-VN') + ' Đ';
-        if (shippingElement) shippingElement.innerText = shippingCost.toLocaleString('vi-VN') + ' Đ';
-        if (totalElement) totalElement.innerHTML = `<small>VNĐ</small> ${total.toLocaleString('vi-VN')} Đ`;
-    }
-
-    shippingRadios.forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            shippingCost = Number(e.target.value);
-            updateCosts();
-        });
-    });
-
-    // ==========================================
-    // 6. XỬ LÝ MÃ GIẢM GIÁ (CALL API TỪ BACKEND)
-    // ==========================================
-    const btnApplyDiscount = document.querySelector('.btn-apply-discount');
-    const discountInput = document.querySelector('.discount-section input');
-
-    let discountPercent = 0;
-    let isFreeship = false;
-    let appliedCouponCode = null;
-
-    if (btnApplyDiscount && discountInput) {
-        btnApplyDiscount.addEventListener('click', async () => {
-            const code = discountInput.value.trim().toUpperCase();
-
-            if (code === '') {
-                // ĐÃ SỬA: Thay alert bằng showLocalToast
-                showLocalToast('Vui lòng nhập mã giảm giá!', false);
-                return;
-            }
-
-            const originalBtnText = btnApplyDiscount.innerText;
-            btnApplyDiscount.innerText = "...";
-            btnApplyDiscount.disabled = true;
-
-            try {
-                const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/coupons/check', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code: code })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    discountPercent = data.discount_percent;
-                    isFreeship = data.is_freeship;
-                    appliedCouponCode = code;
-
-                    // ĐÃ SỬA: Thay alert bằng showLocalToast
-                    if (isFreeship) {
-                        showLocalToast('Áp dụng thành công! Bạn được miễn phí vận chuyển.', true);
-                    } else {
-                        showLocalToast(`Áp dụng thành công! Mã giảm ${discountPercent}% tổng đơn hàng.`, true);
-                    }
-                } else {
-                    // ĐÃ SỬA: Thay alert bằng showLocalToast
-                    showLocalToast(data.message, false);
-                    discountPercent = 0;
-                    isFreeship = false;
-                    appliedCouponCode = null;
-                }
-
-                updateCosts();
-            } catch (error) {
-                console.error("Lỗi kiểm tra mã:", error);
-                // ĐÃ SỬA: Thay alert bằng showLocalToast
-                showLocalToast("Lỗi kết nối đến máy chủ!", false);
-            } finally {
-                btnApplyDiscount.innerText = originalBtnText;
-                btnApplyDiscount.disabled = false;
-            }
-        });
-    }
-
-    // Cập nhật lại Hàm updateCosts (Giữ nguyên y hệt như cũ)
     function updateCosts() {
         const currentShippingMethod = document.querySelector('input[name="shipping"]:checked');
         shippingCost = isFreeship ? 0 : Number(currentShippingMethod.value);
@@ -418,9 +358,75 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    shippingRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            shippingCost = Number(e.target.value);
+            updateCosts();
+        });
+    });
 
     // ==========================================
-    // 7. GỌI API TỈNH/THÀNH PHỐ VIỆT NAM
+    // 7. XỬ LÝ MÃ GIẢM GIÁ
+    // ==========================================
+    const btnApplyDiscount = document.querySelector('.btn-apply-discount');
+    const discountInput = document.querySelector('.discount-section input');
+
+    let discountPercent = 0;
+    let isFreeship = false;
+    let appliedCouponCode = null;
+
+    if (btnApplyDiscount && discountInput) {
+        btnApplyDiscount.addEventListener('click', async () => {
+            const code = discountInput.value.trim().toUpperCase();
+
+            if (code === '') {
+                showLocalToast('Vui lòng nhập mã giảm giá!', false);
+                return;
+            }
+
+            const originalBtnText = btnApplyDiscount.innerText;
+            btnApplyDiscount.innerText = "...";
+            btnApplyDiscount.disabled = true;
+
+            try {
+                const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/coupons/check', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code: code })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    discountPercent = data.discount_percent;
+                    isFreeship = data.is_freeship;
+                    appliedCouponCode = code;
+
+                    if (isFreeship) {
+                        showLocalToast('Áp dụng thành công! Bạn được miễn phí vận chuyển.', true);
+                    } else {
+                        showLocalToast(`Áp dụng thành công! Mã giảm ${discountPercent}% tổng đơn hàng.`, true);
+                    }
+                } else {
+                    showLocalToast(data.message, false);
+                    discountPercent = 0;
+                    isFreeship = false;
+                    appliedCouponCode = null;
+                }
+
+                updateCosts();
+            } catch (error) {
+                console.error("Lỗi kiểm tra mã:", error);
+                showLocalToast("Lỗi kết nối đến máy chủ!", false);
+            } finally {
+                btnApplyDiscount.innerText = originalBtnText;
+                btnApplyDiscount.disabled = false;
+            }
+        });
+    }
+
+    // ==========================================
+    // 8. GỌI API TỈNH/THÀNH PHỐ VIỆT NAM
     // ==========================================
     const provinceSelect = document.getElementById('province');
     const districtSelect = document.getElementById('district');
@@ -429,7 +435,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (provinceSelect && districtSelect && wardSelect) {
         let localData = [];
 
-        // Lấy dữ liệu từ API miễn phí
         fetch('https://provinces.open-api.vn/api/?depth=3')
             .then(res => res.json())
             .then(data => {
@@ -440,7 +445,6 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch(err => console.error("Lỗi tải dữ liệu tỉnh thành:", err));
 
-        // Khi khách chọn Tỉnh/Thành
         provinceSelect.addEventListener('change', function () {
             districtSelect.innerHTML = '<option value="">Chọn Quận / Huyện *</option>';
             wardSelect.innerHTML = '<option value="">Chọn Phường / Xã *</option>';
@@ -458,7 +462,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Khi khách chọn Quận/Huyện
         districtSelect.addEventListener('change', function () {
             wardSelect.innerHTML = '<option value="">Chọn Phường / Xã *</option>';
 
@@ -528,6 +531,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
-    // Khởi chạy khi vừa vào trang Checkout
+    // Khởi chạy
     loadCheckoutCart();
 });
