@@ -470,50 +470,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    // FIXED: Khôi phục hàm Local Toast xịn xò của sếp
+    // ==========================================
+    // FIXED: THÔNG BÁO CHUẨN FORM CỦA SẾP (GIỐNG WISHLIST)
+    // ==========================================
     function showLocalToast(message, isSuccess = true) {
         let container = document.getElementById('toast-container');
         if (!container) {
             container = document.createElement('div');
             container.id = 'toast-container';
-            container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 10001; display: flex; flex-direction: column; gap: 10px;';
             document.body.appendChild(container);
         }
+
         const toast = document.createElement('div');
-        toast.className = 'toast show';
+        // Dùng đúng class 'toast show success' để ăn CSS có sẵn của sếp
+        toast.className = isSuccess ? 'toast show success' : 'toast show removed';
 
-        // Style cho Local Toast (kiểu yêu thích)
-        const color = isSuccess ? '#4caf50' : '#f44336';
         const icon = isSuccess ? 'fa-check-circle' : 'fa-times-circle';
+        toast.innerHTML = `<i class="fas ${icon}"></i> ${message}`;
 
-        toast.style.cssText = `
-            background: #333; 
-            color: #fff; 
-            padding: 15px 25px; 
-            border-radius: 8px; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3); 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            font-weight: 500; 
-            min-width: 250px;
-            border-left: 5px solid ${color};
-            transition: transform 0.3s ease-out;
-            transform: translateX(120%);
-        `;
-
-        toast.innerHTML = `<i class="fas ${icon}" style="color: ${color}; font-size: 1.2rem;"></i> ${message}`;
         container.appendChild(toast);
 
-        // Ép vẽ lại để có animation bay vào
-        requestAnimationFrame(() => {
-            toast.style.transform = 'translateX(0)';
-        });
-
-        // Tự đóng sau 3s
         setTimeout(() => {
-            toast.style.transform = 'translateX(120%)';
-            setTimeout(() => toast.remove(), 300);
+            toast.classList.remove('show');
+            setTimeout(() => toast.remove(), 500);
         }, 3000);
     }
 });
