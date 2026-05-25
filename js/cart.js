@@ -12,12 +12,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     // 1. MÁY QUÉT EMAIL THÔNG MINH (TRỊ LỖI MẤT TRÍ NHỚ)
     // ==========================================
-    function getSafeUserEmail() {
-        // 1. Tìm trực tiếp các tên phổ biến
+    // ==========================================
+    // 1. MÁY QUÉT EMAIL THÔNG MINH (TRỊ LỖI MẤT TRÍ NHỚ) - BẢN NÂNG CẤP
+    // ==========================================
+    window.getSafeUserEmail = function () {
+        // Ưu tiên 1: Lấy thẳng từ cái key chuẩn nhất sếp đang xài lúc đăng nhập
+        const currentUserData = localStorage.getItem('haru-current-user');
+        if (currentUserData) {
+            try {
+                const userObj = JSON.parse(currentUserData);
+                if (userObj && userObj.email) return userObj.email;
+            } catch (error) {
+                console.error("Lỗi parse haru-current-user:", error);
+            }
+        }
+
+        // Ưu tiên 2: Tìm các key phổ biến khác
         let directEmail = localStorage.getItem('user_email') || localStorage.getItem('email') || localStorage.getItem('userEmail');
         if (directEmail && !directEmail.startsWith('{')) return directEmail.replace(/['"]/g, '');
 
-        // 2. Lục lọi bên trong các Object (như 'user', 'currentUser')
+        // Ưu tiên 3: Lục lọi nếu 2 cách trên tạch
         for (let i = 0; i < localStorage.length; i++) {
             let key = localStorage.key(i);
             try {
@@ -27,7 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (e) { }
         }
-        return null;
+
+        return null; // Nếu tạch hết thì đành chịu
     }
 
     // ==========================================
