@@ -663,8 +663,8 @@ app.get('/api/admin/orders', async (req, res) => {
                                'product_id', oi.product_id,
                                'quantity', oi.quantity,
                                'price', oi.price,
-                               'selected_model', pv.model_name,
-                               'selected_color', pv.color_name,
+                               'selected_model', oi."selected_model",
+                               'selected_color', oi."selected_color",
                                'product_name', p.name,
                                'product_image', pv.color_img
                            )
@@ -681,8 +681,11 @@ app.get('/api/admin/orders', async (req, res) => {
         const result = await pool.query(query);
         res.json(result.rows);
     } catch (err) {
-        console.error("Lỗi SQL:", err);
-        res.status(500).json({ success: false, message: 'Lỗi server: ' + err.message });
+        console.error("Lỗi SQL tại API /api/admin/orders:", err);
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi server khi lấy đơn hàng: ' + err.message
+        });
     }
 });
 
