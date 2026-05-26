@@ -655,45 +655,34 @@ app.delete('/api/admin/products/:id', async (req, res) => {
 
 app.get('/api/admin/orders', async (req, res) => {
     try {
-        // Chỉ lấy thông tin đơn hàng và items JOIN đơn giản, KHÔNG dùng json_agg phức tạp
         const query = `
             SELECT o.*, 
-                   oi.product_id, oi.quantity, oi.price, 
-                   oi.selected_model, oi.selected_color,
-                   p.name as product_name, p.image as product_image
+                   COALESCE(
+                       json_agg(
+                           json_build_object(
+                               'product_id', oi.product_id,
+                               'quantity', oi.quantity,
+                               'price', oi.price,
+                               'selected_model', pv.model_name,
+                               'selected_color', pv.color_name,
+                               'product_name', p.name,
+                               'product_image', pv.color_img
+                           )
+                       ) FILTER (WHERE oi.id IS NOT NULL), '[]'
+                   ) as items
             FROM orders o
             LEFT JOIN order_items oi ON o.id = oi.order_id
             LEFT JOIN products p ON oi.product_id = p.id
+            LEFT JOIN product_variants pv ON oi.variant_id = pv.id
+            GROUP BY o.id
             ORDER BY o.created_at DESC
         `;
+
         const result = await pool.query(query);
-
-        // Gom dữ liệu ở đây (phía Backend JS) cho an toàn, không để SQL làm
-        const ordersMap = {};
-        result.rows.forEach(row => {
-            if (!ordersMap[row.id]) {
-                ordersMap[row.id] = { ...row, items: [] };
-                delete ordersMap[row.id].product_id; // Xóa mấy cái dư thừa
-                delete ordersMap[row.id].quantity;
-                // ... xóa nốt các cột dư từ bảng items
-            }
-            if (row.product_id) {
-                ordersMap[row.id].items.push({
-                    product_id: row.product_id,
-                    quantity: row.quantity,
-                    price: row.price,
-                    selected_model: row.selected_model,
-                    selected_color: row.selected_color,
-                    product_name: row.product_name,
-                    product_image: row.product_image
-                });
-            }
-        });
-
-        res.json(Object.values(ordersMap));
+        res.json(result.rows);
     } catch (err) {
-        console.error("Lỗi:", err);
-        res.status(500).json({ error: err.message });
+        console.error("Lỗi lấy đơn hàng Admin:", err);
+        res.status(500).json({ success: false, message: 'Lỗi server: ' + err.message });
     }
 });
 
