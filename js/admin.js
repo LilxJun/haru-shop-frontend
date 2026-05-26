@@ -279,35 +279,37 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/admin/orders');
             const orders = await response.json();
 
+            // LỚP BẢO VỆ: Nếu dữ liệu trả về không phải là mảng hoặc bị lỗi
+            if (!Array.isArray(orders)) {
+                console.error("Dữ liệu trả về không hợp lệ:", orders);
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">Lỗi Backend: API không trả về mảng dữ liệu. Vui lòng kiểm tra lại log server.</td></tr>`;
+                return;
+            }
+
             if (orders.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #666;">Chưa có đơn hàng nào.</td></tr>';
                 return;
             }
 
             tbody.innerHTML = orders.map(o => {
-                // 5.1. Bóc tách từng món đồ khách mua ra thành HTML
-                const itemsHtml = o.items.map(item => {
+                // LỚP BẢO VỆ: Đảm bảo o.items là mảng
+                const itemsList = Array.isArray(o.items) ? o.items : [];
+
+                const itemsHtml = itemsList.map(item => {
                     let variant = [];
                     if (item.selected_model && item.selected_model !== 'Mặc định') variant.push(item.selected_model);
                     if (item.selected_color && item.selected_color !== 'Mặc định') variant.push(item.selected_color);
                     let variantStr = variant.length > 0 ? `<span style="color:#6366f1;">(${variant.join(' - ')})</span>` : '';
 
-                    // ==========================================
-                    // ĐOẠN SỬA LỖI: LẤY ẢNH THEO ĐÚNG MÀU SẮC
-                    // ==========================================
-                    let finalImage = item.product_image; // Ảnh mặc định
+                    let finalImage = item.product_image;
 
-                    // Nếu có data màu và khách có chọn màu
                     if (item.product_colors && item.selected_color && item.selected_color !== 'Mặc định') {
                         try {
-                            // Ép kiểu mảng màu sắc
                             const colorsArray = typeof item.product_colors === 'string' ? JSON.parse(item.product_colors) : item.product_colors;
-
-                            // Tìm xem màu khách chọn là màu nào để lôi ảnh ra
                             if (Array.isArray(colorsArray) && colorsArray.length > 0) {
                                 const variantColorData = colorsArray.find(c => c.name === item.selected_color);
                                 if (variantColorData && variantColorData.image) {
-                                    finalImage = variantColorData.image; // Ghi đè bằng ảnh của màu Purple (hoặc màu tương ứng)
+                                    finalImage = variantColorData.image;
                                 }
                             }
                         } catch (e) {
@@ -315,10 +317,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
 
-                    // Chốt lại đường dẫn ảnh cuối cùng
                     let imgSrc = finalImage;
                     imgSrc = imgSrc && imgSrc.startsWith('../') ? imgSrc : '../' + (imgSrc || 'IMG/default.png');
-                    // ==========================================
 
                     return `
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 8px;">
@@ -330,14 +330,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>`;
                 }).join('');
 
-                // 5.2. Đổi màu huy hiệu Trạng thái cho đẹp
-                let statusColor = '#f59e0b'; // Màu Cam: Pending (Chờ xử lý)
+                let statusColor = '#f59e0b';
                 let statusText = 'Chờ xử lý';
                 if (o.status === 'Shipping') { statusColor = '#3b82f6'; statusText = 'Đang giao'; }
                 if (o.status === 'Completed') { statusColor = '#10b981'; statusText = 'Hoàn thành'; }
                 if (o.status === 'Cancelled') { statusColor = '#ef4444'; statusText = 'Đã hủy'; }
 
-                // 5.3. Định dạng ngày giờ
                 const dateObj = new Date(o.created_at);
                 const timeString = dateObj.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }) + ' - ' + dateObj.toLocaleDateString('vi-VN');
 
@@ -372,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }).join('');
         } catch (error) {
             console.error("Lỗi tải đơn hàng:", error);
-            tbody.innerHTML = '<tr><td colspan="6">Lỗi kết nối đến máy chủ!</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="color: red;">Lỗi kết nối đến máy chủ! Vui lòng kiểm tra lại Backend.</td></tr>';
         }
     }
 
