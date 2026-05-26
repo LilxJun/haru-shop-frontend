@@ -666,14 +666,14 @@ app.get('/api/admin/orders', async (req, res) => {
                                'selected_model', oi."selected_model",
                                'selected_color', oi."selected_color",
                                'product_name', p.name,
-                               'product_image', p.image,
-                               'product_colors', p.colors
+                               'product_image', pv.color_img
                            )
                        ) FILTER (WHERE oi.id IS NOT NULL), '[]'
                    ) as items
             FROM orders o
             LEFT JOIN order_items oi ON o.id = oi.order_id
             LEFT JOIN products p ON oi.product_id = p.id
+            LEFT JOIN product_variants pv ON oi.variant_id = pv.id
             GROUP BY o.id
             ORDER BY o.created_at DESC
         `;
@@ -682,7 +682,7 @@ app.get('/api/admin/orders', async (req, res) => {
         res.json(result.rows);
     } catch (err) {
         console.error("Lỗi SQL:", err);
-        res.status(500).json({ success: false, message: 'Lỗi server' });
+        res.status(500).json({ success: false, message: 'Lỗi server: ' + err.message });
     }
 });
 

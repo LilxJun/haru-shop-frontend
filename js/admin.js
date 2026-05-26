@@ -298,8 +298,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (item.selected_color && item.selected_color !== 'Mặc định') variant.push(item.selected_color);
                     let variantStr = variant.length > 0 ? `<span style="color:#6366f1;">(${variant.join(' - ')})</span>` : '';
 
-                    // CƯỜNG HÓA: Chỉ xử lý ảnh nếu có dữ liệu product_colors
-                    let imgSrc = item.product_image || '../IMG/default.png';
+                    // Thay đoạn logic cũ bằng đoạn này trong admin.js
+                    let imgSrc = item.product_image; // Đây đã là ảnh của đúng màu đó từ pv.color_img
 
                     if (item.product_colors && item.selected_color && item.selected_color !== 'Mặc định') {
                         try {
@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         } catch (e) { console.warn("Lỗi render ảnh đơn hàng:", e); }
                     }
 
-                    imgSrc = imgSrc.startsWith('../') ? imgSrc : '../' + imgSrc;
+                    imgSrc = (imgSrc && imgSrc.startsWith('../')) ? imgSrc : '../' + (imgSrc || 'IMG/default.png');
 
                     return `
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 8px;">
