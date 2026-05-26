@@ -688,6 +688,7 @@ app.delete('/api/admin/products/:id', async (req, res) => {
 
 app.get('/api/admin/orders', async (req, res) => {
     try {
+        // Chỉ lấy những cột mà SẮC CHẮN tồn tại
         const query = `
             SELECT o.*, 
                    COALESCE(
@@ -696,27 +697,21 @@ app.get('/api/admin/orders', async (req, res) => {
                                'product_id', oi.product_id,
                                'quantity', oi.quantity,
                                'price', oi.price,
-                               'selected_model', oi."selected_model",
-                               'selected_color', oi."selected_color",
-                               'product_name', p.name,
-                               'product_image', pv.color_img
+                               'product_name', p.name
                            )
                        ) FILTER (WHERE oi.id IS NOT NULL), '[]'
                    ) as items
             FROM orders o
             LEFT JOIN order_items oi ON o.id = oi.order_id
             LEFT JOIN products p ON oi.product_id = p.id
-            LEFT JOIN product_variants pv ON oi.variant_id = pv.id
             GROUP BY o.id
             ORDER BY o.created_at DESC
         `;
-
         const result = await pool.query(query);
         res.json(result.rows);
     } catch (err) {
-        console.error("Lỗi SQL:", err);
-        // Sếp nhìn log Railway sau khi chạy cái này, nó sẽ hiện rõ cột nào lỗi
-        res.status(500).json({ success: false, message: 'Lỗi: ' + err.message });
+        console.error("Lỗi:", err);
+        res.status(500).json({ error: err.message });
     }
 });
 
