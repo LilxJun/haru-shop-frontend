@@ -653,8 +653,6 @@ app.delete('/api/admin/products/:id', async (req, res) => {
 // API ADMIN: QUẢN LÝ ĐƠN HÀNG
 // ==========================================
 
-// 1. Lấy danh sách tất cả đơn hàng (Kèm chi tiết từng món đồ bên trong)
-// 1. Lấy danh sách tất cả đơn hàng (Kèm chi tiết từng món đồ bên trong)
 app.get('/api/admin/orders', async (req, res) => {
     try {
         // Lệnh SQL này cực kỳ xịn: Nó lôi Đơn hàng ra, sau đó gom tất cả đồ trong đơn đó thành 1 mảng JSON (json_agg)
@@ -668,8 +666,8 @@ app.get('/api/admin/orders', async (req, res) => {
                            'selected_model', oi.selected_model,
                            'selected_color', oi.selected_color,
                            'product_name', p.name,
-                           'product_image', p.image,
-                           'product_colors', p.colors
+                           'product_image', p.image
+                           -- ĐÃ XÓA DÒNG 'product_colors' VÌ BẢNG PRODUCTS KHÔNG CÓ CỘT NÀY
                        )
                    ) FILTER (WHERE oi.id IS NOT NULL), '[]') as items
             FROM orders o
@@ -681,8 +679,8 @@ app.get('/api/admin/orders', async (req, res) => {
         const result = await pool.query(query);
         res.json(result.rows);
     } catch (err) {
-        console.error("❌ LỖI TẢI DANH SÁCH ĐƠN HÀNG:", err.message);
-        res.status(500).json({ error: err.message });
+        console.error("Lỗi lấy danh sách đơn hàng Admin:", err);
+        res.status(500).json({ success: false, message: 'Lỗi server' });
     }
 });
 
