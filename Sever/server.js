@@ -679,7 +679,7 @@ app.get('/api/admin/orders', async (req, res) => {
         const result = await pool.query(query);
         res.json(result.rows);
     } catch (err) {
-        console.error("Lỗi lấy danh sách đơn hàng Admin:", err);
+        console.error("Lỗi lấy đơn hàng Admin:", err);
         res.status(500).json({ success: false, message: 'Lỗi server' });
     }
 });
