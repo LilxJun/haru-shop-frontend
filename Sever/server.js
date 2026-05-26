@@ -686,9 +686,12 @@ app.delete('/api/admin/products/:id', async (req, res) => {
 //     }
 // });
 
+// ==========================================
+// API ADMIN: QUẢN LÝ ĐƠN HÀNG (BẢN CHUẨN - KHÔNG DÙNG CỘT LỖI)
+// ==========================================
 app.get('/api/admin/orders', async (req, res) => {
     try {
-        // Chỉ lấy những cột mà SẮC CHẮN tồn tại
+        // Query này chỉ lấy cột chắc chắn có trong bảng, không gọi cột lạ gây lỗi
         const query = `
             SELECT o.*, 
                    COALESCE(
@@ -707,11 +710,12 @@ app.get('/api/admin/orders', async (req, res) => {
             GROUP BY o.id
             ORDER BY o.created_at DESC
         `;
+
         const result = await pool.query(query);
         res.json(result.rows);
     } catch (err) {
-        console.error("Lỗi:", err);
-        res.status(500).json({ error: err.message });
+        console.error("Lỗi SQL:", err);
+        res.status(500).json({ success: false, message: 'Lỗi server: ' + err.message });
     }
 });
 
