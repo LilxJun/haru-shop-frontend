@@ -691,31 +691,30 @@ app.delete('/api/admin/products/:id', async (req, res) => {
 // ==========================================
 app.get('/api/admin/orders', async (req, res) => {
     try {
-        // Query này chỉ lấy cột chắc chắn có trong bảng, không gọi cột lạ gây lỗi
-        const query = `
-            SELECT o.*, 
-                   COALESCE(
-                       json_agg(
-                           json_build_object(
-                               'product_id', oi.product_id,
-                               'quantity', oi.quantity,
-                               'price', oi.price,
-                               'product_name', p.name
-                           )
-                       ) FILTER (WHERE oi.id IS NOT NULL), '[]'
-                   ) as items
-            FROM orders o
-            LEFT JOIN order_items oi ON o.id = oi.order_id
-            LEFT JOIN products p ON oi.product_id = p.id
-            GROUP BY o.id
-            ORDER BY o.created_at DESC
-        `;
+        // 1. Lấy toàn bộ đơn hàng
+        const orderResult = await pool.query('SELECT * FROM orders ORDER BY created_at DESC');
+        const orders = orderResult.rows;
 
-        const result = await pool.query(query);
-        res.json(result.rows);
+        if (orders.length === 0) return res.json([]);
+
+        // 2. Lấy toàn bộ món hàng (để tránh JOIN bị lỗi cột)
+        const itemResult = await pool.query(`
+            SELECT oi.*, p.name as product_name, pv.color_img as product_image
+            FROM order_items oi
+            LEFT JOIN products p ON oi.product_id = p.id
+            LEFT JOIN product_variants pv ON oi.variant_id = pv.id
+        `);
+
+        // 3. Ghép đơn hàng với món hàng bằng Javascript
+        const ordersWithItems = orders.map(o => ({
+            ...o,
+            items: itemResult.rows.filter(item => item.order_id === o.id)
+        }));
+
+        res.json(ordersWithItems);
     } catch (err) {
-        console.error("Lỗi SQL:", err);
-        res.status(500).json({ success: false, message: 'Lỗi server: ' + err.message });
+        console.error("LỖI CỐ ĐỊNH:", err);
+        res.status(500).json({ error: err.message });
     }
 });
 
