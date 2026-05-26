@@ -655,7 +655,6 @@ app.delete('/api/admin/products/:id', async (req, res) => {
 
 app.get('/api/admin/orders', async (req, res) => {
     try {
-        // Lệnh SQL này cực kỳ xịn: Nó lôi Đơn hàng ra, sau đó gom tất cả đồ trong đơn đó thành 1 mảng JSON (json_agg)
         const query = `
             SELECT o.*, 
                    COALESCE(json_agg(
@@ -667,7 +666,6 @@ app.get('/api/admin/orders', async (req, res) => {
                            'selected_color', oi.selected_color,
                            'product_name', p.name,
                            'product_image', p.image
-                           -- ĐÃ XÓA DÒNG 'product_colors' VÌ BẢNG PRODUCTS KHÔNG CÓ CỘT NÀY
                        )
                    ) FILTER (WHERE oi.id IS NOT NULL), '[]') as items
             FROM orders o
