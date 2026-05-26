@@ -691,30 +691,32 @@ app.delete('/api/admin/products/:id', async (req, res) => {
 // ==========================================
 app.get('/api/admin/orders', async (req, res) => {
     try {
-        // 1. Lấy toàn bộ đơn hàng
-        const orderResult = await pool.query('SELECT * FROM orders ORDER BY created_at DESC');
-        const orders = orderResult.rows;
-
-        if (orders.length === 0) return res.json([]);
-
-        // 2. Lấy toàn bộ món hàng (để tránh JOIN bị lỗi cột)
-        const itemResult = await pool.query(`
-            SELECT oi.*, p.name as product_name, pv.color_img as product_image
-            FROM order_items oi
+        const query = `
+            SELECT o.*, 
+                   COALESCE(
+                       json_agg(
+                           json_build_object(
+                               'product_id', oi.product_id,
+                               'quantity', oi.quantity,
+                               'price', oi.price,
+                               'selected_model', oi."selected_model",
+                               'selected_color', oi."selected_color",
+                               'product_name', p.name
+                           )
+                       ) FILTER (WHERE oi.id IS NOT NULL), '[]'
+                   ) as items
+            FROM orders o
+            LEFT JOIN order_items oi ON o.id = oi.order_id
             LEFT JOIN products p ON oi.product_id = p.id
-            LEFT JOIN product_variants pv ON oi.variant_id = pv.id
-        `);
+            GROUP BY o.id
+            ORDER BY o.created_at DESC
+        `;
 
-        // 3. Ghép đơn hàng với món hàng bằng Javascript
-        const ordersWithItems = orders.map(o => ({
-            ...o,
-            items: itemResult.rows.filter(item => item.order_id === o.id)
-        }));
-
-        res.json(ordersWithItems);
+        const result = await pool.query(query);
+        res.json(result.rows);
     } catch (err) {
-        console.error("LỖI CỐ ĐỊNH:", err);
-        res.status(500).json({ error: err.message });
+        console.error("LỖI SQL TẠI /api/admin/orders:", err);
+        res.status(500).json({ success: false, message: 'Lỗi server: ' + err.message });
     }
 });
 
