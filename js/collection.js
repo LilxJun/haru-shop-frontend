@@ -68,7 +68,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         productGrid.innerHTML = products.map(item => {
             // Xử lý link ảnh an toàn để không bị gãy hình
-            const imagePath = item.image.startsWith('../') ? item.image : '../' + item.image;
+            const rawImage = item.image || 'img/default.png';
+            const imagePath = rawImage.startsWith('../') ? rawImage : '../' + rawImage;
             const formattedPrice = Number(item.price).toLocaleString('vi-VN');
 
             // TẠO ĐƯỜNG LINK TRUYỀN ID SẢN PHẨM
