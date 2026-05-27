@@ -398,31 +398,28 @@ app.post('/api/coupons/check', async (req, res) => {
 // API CHỐT ĐƠN HÀNG (Tạo Order -> Tạo Items -> Xóa Cart)
 // ==========================================
 app.post('/api/orders', async (req, res) => {
-    // 1. Lấy cục kết nối riêng để làm Transaction (để lỡ lỗi thì quay xe)
     const client = await pool.connect();
-
     try {
-        await client.query('BEGIN'); // BẮT ĐẦU GIAO DỊCH
+        await client.query('BEGIN');
 
-        // Lấy dữ liệu từ Frontend gửi lên
         const { email, lastname, address, city, phone, shipping_fee, total_amount, payment_method } = req.body;
 
-        // 2. Tìm ID của user dựa vào email
         const userRes = await client.query('SELECT id FROM users WHERE email = $1', [email]);
         if (userRes.rows.length === 0) throw new Error('Không tìm thấy tài khoản');
         const userId = userRes.rows[0].id;
 
-        // 3. Lấy toàn bộ sản phẩm trong giỏ hàng của user đó ra
+        // ✅ FIX: Thêm variant_id và lấy giá từ variant
         const cartRes = await client.query(`
-            SELECT c.product_id, c.quantity, c.selected_model, c.selected_color, p.price 
+            SELECT c.product_id, c.quantity, c.variant_id, c.selected_model, c.selected_color,
+                   COALESCE(pv.price, p.price) AS price
             FROM cart c
             JOIN products p ON c.product_id = p.id
+            LEFT JOIN product_variants pv ON c.variant_id = pv.variant_id
             WHERE c.user_id = $1
         `, [userId]);
 
         if (cartRes.rows.length === 0) throw new Error('Giỏ hàng trống!');
 
-        // 4. Tạo Đơn hàng mới (INSERT VÀO BẢNG orders)
         const orderQuery = `
             INSERT INTO orders (user_id, email, customer_name, address, city, phone, shipping_fee, total_amount, payment_method)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id
@@ -432,34 +429,28 @@ app.post('/api/orders', async (req, res) => {
         ]);
         const newOrderId = orderResult.rows[0].id;
 
-        // 5. Thêm chi tiết từng món đồ vào (INSERT VÀO BẢNG order_items) VÀ TRỪ KHO
         for (let item of cartRes.rows) {
-            // 5.1 Lưu vào chi tiết đơn hàng
+            // ✅ FIX: Lưu variant_id vào order_items
             await client.query(`
-                INSERT INTO order_items (order_id, product_id, quantity, price, selected_model, selected_color)
-                VALUES ($1, $2, $3, $4, $5, $6)
-            `, [newOrderId, item.product_id, item.quantity, item.price, item.selected_model, item.selected_color]);
+                INSERT INTO order_items (order_id, product_id, quantity, price, variant_id, selected_model, selected_color)
+                VALUES ($1, $2, $3, $4, $5, $6, $7)
+            `, [newOrderId, item.product_id, item.quantity, item.price, item.variant_id, item.selected_model, item.selected_color]);
 
-            // 5.2 Tự động trừ số lượng trong kho (Dùng GREATEST để lỡ kho lỗi cũng không bị số âm)
             await client.query(`
-                UPDATE products 
-                SET stock = GREATEST(stock - $1, 0) 
-                WHERE id = $2
+                UPDATE products SET stock = GREATEST(stock - $1, 0) WHERE id = $2
             `, [item.quantity, item.product_id]);
         }
 
-        // 6. Dọn sạch giỏ hàng (DELETE TỪ BẢNG cart)
         await client.query('DELETE FROM cart WHERE user_id = $1', [userId]);
-
-        await client.query('COMMIT'); // CHỐT LƯU DỮ LIỆU
+        await client.query('COMMIT');
         res.json({ success: true, orderId: newOrderId });
 
     } catch (err) {
-        await client.query('ROLLBACK'); // CÓ LỖI LÀ QUAY XE LẠI TỪ ĐẦU, KHÔNG LƯU GÌ HẾT
+        await client.query('ROLLBACK');
         console.error('Lỗi tạo đơn hàng:', err);
         res.status(500).json({ success: false, message: err.message });
     } finally {
-        client.release(); // Trả lại kết nối cho hệ thống
+        client.release();
     }
 });
 

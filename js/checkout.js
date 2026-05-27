@@ -276,18 +276,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const formattedPrice = Number(item.product_price).toLocaleString('vi-VN');
 
             let finalImage = item.product_image;
-            if (item.product_colors && item.selected_color && item.selected_color !== 'Mặc định') {
-                try {
-                    const colorsArray = typeof item.product_colors === 'string' ? JSON.parse(item.product_colors) : item.product_colors;
-                    if (Array.isArray(colorsArray) && colorsArray.length > 0) {
-                        const variantColorData = colorsArray.find(c => c.name === item.selected_color);
-                        if (variantColorData && variantColorData.image) {
-                            finalImage = variantColorData.image;
-                        }
-                    }
-                } catch (e) {
-                    console.error("Lỗi đọc màu sắc:", e);
-                }
+
+            let imgSrc = '../img/default.png';
+            if (finalImage) {
+                let dbImage = finalImage.replace(/^IMG\//i, 'img/');
+                imgSrc = dbImage.startsWith('../') ? dbImage : '../' + dbImage;
             }
 
             let imgSrc = '../IMG/default.png';
