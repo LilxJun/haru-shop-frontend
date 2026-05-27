@@ -278,6 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/admin/orders');
 
+            // --- LỚP BẢO VỆ 1: Kiểm tra xem server có trả về JSON hợp lệ không ---
             const textResponse = await response.text();
             let orders;
             try {
@@ -308,23 +309,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     let variantStr = variant.length > 0 ? `<span style="color:#6366f1;">(${variant.join(' - ')})</span>` : '';
 
                     // --- XỬ LÝ ẢNH CHUẨN XÁC, KHÔNG BAO GIỜ HIỆN NULL ---
-                    let imgSrc = '../IMG/default.png'; // Luôn gán một ảnh mặc định trước cho an toàn
+                    let imgSrc = '../img/default.png';
                     if (item.product_image && item.product_image !== 'null') {
-                        // Nếu có ảnh từ Database, sẽ gắn thêm ../ nếu nó chưa có
-                        imgSrc = item.product_image.startsWith('../') ? item.product_image : '../' + item.product_image;
+                        // Ép tất cả chữ 'IMG/' (nếu lỡ nhập sai) thành 'img/'
+                        let dbImage = item.product_image.replace('IMG/', 'img/');
+                        // Gắn thêm ../ nếu chưa có
+                        imgSrc = dbImage.startsWith('../') ? dbImage : '../' + dbImage;
                     }
 
                     // Đảm bảo tên sản phẩm hiển thị chuẩn
                     let prodName = item.product_name || 'Sản phẩm không xác định';
 
                     return `
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 8px;">
-                        <img src="${imgSrc}" style="width: 40px; height: 40px; object-fit: contain; border-radius: 4px; background: #f8fafc; border: 1px solid #e2e8f0;">
-                        <div style="font-size: 13px;">
-                            <b>${prodName}</b> ${variantStr} <br>
-                            Số lượng: <b style="color: #ef4444;">${item.quantity || 0}</b> | Giá: ${Number(item.price || 0).toLocaleString('vi-VN')} Đ
-                        </div>
-                    </div>`;
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 8px;">
+                    <img src="${imgSrc}" style="width: 40px; height: 40px; object-fit: contain; border-radius: 4px; background: #f8fafc; border: 1px solid #e2e8f0;">
+                    <div style="font-size: 13px;">
+                        <b>${prodName}</b> ${variantStr} <br>
+                        Số lượng: <b style="color: #ef4444;">${item.quantity || 0}</b> | Giá: ${Number(item.price || 0).toLocaleString('vi-VN')} Đ
+                    </div>
+                </div>`;
                 }).join('');
 
                 let statusColor = '#f59e0b';
@@ -334,21 +337,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 else if (o.status === 'Cancelled') { statusColor = '#ef4444'; statusText = 'Đã hủy'; }
 
                 return `
-                <tr>
-                    <td>#${o.id || ''}</td>
-                    <td><b>${o.customer_name || ''}</b><br>${o.phone || ''}</td>
-                    <td>${itemsHtml}</td>
-                    <td><b>${Number(o.total_amount || 0).toLocaleString('vi-VN')} Đ</b></td>
-                    <td><span style="background-color:${statusColor}; color:white; padding: 4px 8px; border-radius: 12px; font-size:12px;">${statusText}</span></td>
-                    <td>
-                        <select onchange="updateOrderStatus(${o.id}, this.value)">
-                            <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Chờ xử lý</option>
-                            <option value="Shipping" ${o.status === 'Shipping' ? 'selected' : ''}>Đang giao</option>
-                            <option value="Completed" ${o.status === 'Completed' ? 'selected' : ''}>Hoàn thành</option>
-                            <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Hủy đơn</option>
-                        </select>
-                    </td>
-                </tr>
+            <tr>
+                <td>#${o.id || ''}</td>
+                <td><b>${o.customer_name || ''}</b><br>${o.phone || ''}</td>
+                <td>${itemsHtml}</td>
+                <td><b>${Number(o.total_amount || 0).toLocaleString('vi-VN')} Đ</b></td>
+                <td><span style="background-color:${statusColor}; color:white; padding: 4px 8px; border-radius: 12px; font-size:12px;">${statusText}</span></td>
+                <td>
+                    <select onchange="updateOrderStatus(${o.id}, this.value)">
+                        <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Chờ xử lý</option>
+                        <option value="Shipping" ${o.status === 'Shipping' ? 'selected' : ''}>Đang giao</option>
+                        <option value="Completed" ${o.status === 'Completed' ? 'selected' : ''}>Hoàn thành</option>
+                        <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Hủy đơn</option>
+                    </select>
+                </td>
+            </tr>
             `;
             }).join('');
         } catch (error) {

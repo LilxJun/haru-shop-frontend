@@ -702,19 +702,16 @@ app.get('/api/admin/orders', async (req, res) => {
                                'selected_model', oi.selected_model,
                                'selected_color', oi.selected_color,
                                'variant_id', oi.variant_id,
-                               
-                               -- LẤY TÊN SẢN PHẨM (từ bảng products)
                                'product_name', p.name,
-                               
-                               -- LẤY ẢNH BIẾN THỂ MÀU (từ bảng product_variants)
                                'product_image', pv.color_img
                            )
                        ) FILTER (WHERE oi.id IS NOT NULL), '[]'
                    ) as items
             FROM orders o
             LEFT JOIN order_items oi ON o.id = oi.order_id
-            LEFT JOIN products p ON oi.product_id = p.id -- Join lấy tên
-            LEFT JOIN product_variants pv ON oi.variant_id = pv.id -- Join lấy ảnh màu
+            LEFT JOIN products p ON oi.product_id = p.id
+            -- NỐI BẢNG ĐÚNG CHUẨN BẰNG VARIANT_ID ĐÂY SẾP NHÉ:
+            LEFT JOIN product_variants pv ON oi.variant_id = pv.variant_id
             GROUP BY o.id
             ORDER BY o.created_at DESC
         `;
@@ -722,7 +719,7 @@ app.get('/api/admin/orders', async (req, res) => {
         const result = await pool.query(query);
         res.json(result.rows);
     } catch (err) {
-        console.error("Lỗi:", err);
+        console.error("LỖI CHI TIẾT:", err);
         res.status(500).json({ error: err.message });
     }
 });
