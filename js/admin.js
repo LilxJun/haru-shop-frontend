@@ -278,7 +278,6 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/admin/orders');
 
-            // --- LỚP BẢO VỆ 1: Kiểm tra xem server có trả về JSON hợp lệ không ---
             const textResponse = await response.text();
             let orders;
             try {
@@ -308,14 +307,21 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (item.selected_color && item.selected_color !== 'Mặc định') variant.push(item.selected_color);
                     let variantStr = variant.length > 0 ? `<span style="color:#6366f1;">(${variant.join(' - ')})</span>` : '';
 
-                    // --- LỚP BẢO VỆ 2: Ảnh không bao giờ gây crash ---
-                    let imgSrc = (item.product_image && item.product_image.startsWith('../')) ? item.product_image : '../' + (item.product_image || 'IMG/default.png');
+                    // --- XỬ LÝ ẢNH CHUẨN XÁC, KHÔNG BAO GIỜ HIỆN NULL ---
+                    let imgSrc = '../IMG/default.png'; // Luôn gán một ảnh mặc định trước cho an toàn
+                    if (item.product_image && item.product_image !== 'null') {
+                        // Nếu có ảnh từ Database, sẽ gắn thêm ../ nếu nó chưa có
+                        imgSrc = item.product_image.startsWith('../') ? item.product_image : '../' + item.product_image;
+                    }
+
+                    // Đảm bảo tên sản phẩm hiển thị chuẩn
+                    let prodName = item.product_name || 'Sản phẩm không xác định';
 
                     return `
                     <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 8px;">
                         <img src="${imgSrc}" style="width: 40px; height: 40px; object-fit: contain; border-radius: 4px; background: #f8fafc; border: 1px solid #e2e8f0;">
                         <div style="font-size: 13px;">
-                            <b>${item.product_name || 'Sản phẩm'}</b> ${variantStr} <br>
+                            <b>${prodName}</b> ${variantStr} <br>
                             Số lượng: <b style="color: #ef4444;">${item.quantity || 0}</b> | Giá: ${Number(item.price || 0).toLocaleString('vi-VN')} Đ
                         </div>
                     </div>`;
