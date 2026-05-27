@@ -308,12 +308,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (item.selected_color && item.selected_color !== 'Mặc định') variant.push(item.selected_color);
                     let variantStr = variant.length > 0 ? `<span style="color:#6366f1;">(${variant.join(' - ')})</span>` : '';
 
-                    // --- XỬ LÝ ẢNH CHUẨN XÁC, KHÔNG BAO GIỜ HIỆN NULL ---
+                    // ✅ DB lưu dạng img/ATK-F1-Blue.jpg → cần thêm ../ phía trước
                     let imgSrc = '../img/default.png';
                     if (item.product_image && item.product_image !== 'null') {
-                        // Ép tất cả chữ 'IMG/' (nếu lỡ nhập sai) thành 'img/'
-                        let dbImage = item.product_image.replace('IMG/', 'img/');
-                        // Gắn thêm ../ nếu chưa có
+                        let dbImage = item.product_image.replace(/^IMG\//i, 'img/'); // chuẩn hóa chữ hoa/thường
                         imgSrc = dbImage.startsWith('../') ? dbImage : '../' + dbImage;
                     }
 

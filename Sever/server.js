@@ -703,14 +703,13 @@ app.get('/api/admin/orders', async (req, res) => {
                                'selected_color', oi.selected_color,
                                'variant_id', oi.variant_id,
                                'product_name', p.name,
-                               'product_image', pv.color_img
+                               'product_image', COALESCE(pv.color_img, p.image)
                            )
                        ) FILTER (WHERE oi.id IS NOT NULL), '[]'
                    ) as items
             FROM orders o
             LEFT JOIN order_items oi ON o.id = oi.order_id
             LEFT JOIN products p ON oi.product_id = p.id
-            -- NỐI BẢNG ĐÚNG CHUẨN BẰNG VARIANT_ID ĐÂY SẾP NHÉ:
             LEFT JOIN product_variants pv ON oi.variant_id = pv.variant_id
             GROUP BY o.id
             ORDER BY o.created_at DESC
