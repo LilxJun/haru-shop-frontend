@@ -735,7 +735,7 @@ app.get('/api/user/orders/:email', async (req, res) => {
         if (userRes.rows.length === 0) return res.json([]);
         const userId = userRes.rows[0].id;
 
-        // 2. Lấy đơn hàng của user này (kèm mảng colors y như Admin)
+        // 2. Lấy đơn hàng của user này (JOIN product_variants để lấy ảnh màu)
         const query = `
             SELECT o.*, 
                    COALESCE(json_agg(
@@ -746,13 +746,13 @@ app.get('/api/user/orders/:email', async (req, res) => {
                            'selected_model', oi.selected_model,
                            'selected_color', oi.selected_color,
                            'product_name', p.name,
-                           'product_image', p.image,
-                           'product_colors', p.colors
+                           'product_image', COALESCE(pv.color_img, p.image)
                        )
                    ) FILTER (WHERE oi.id IS NOT NULL), '[]') as items
             FROM orders o
             LEFT JOIN order_items oi ON o.id = oi.order_id
             LEFT JOIN products p ON oi.product_id = p.id
+            LEFT JOIN product_variants pv ON oi.variant_id = pv.variant_id
             WHERE o.user_id = $1
             GROUP BY o.id
             ORDER BY o.created_at DESC
