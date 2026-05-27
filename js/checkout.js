@@ -276,16 +276,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const formattedPrice = Number(item.product_price).toLocaleString('vi-VN');
 
             let finalImage = item.product_image;
-
             let imgSrc = '../img/default.png';
             if (finalImage) {
                 let dbImage = finalImage.replace(/^IMG\//i, 'img/');
                 imgSrc = dbImage.startsWith('../') ? dbImage : '../' + dbImage;
-            }
-
-            let imgSrc = '../IMG/default.png';
-            if (finalImage) {
-                imgSrc = finalImage.startsWith('../') ? finalImage : '../' + finalImage;
             }
 
             let variantHTML = '';
@@ -303,20 +297,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const itemHTML = `
-                <div class="checkout-item">
-                    <div class="item-image-wrapper">
-                        <img src="${imgSrc}" alt="${item.product_name}">
-                        <span class="item-quantity">${item.quantity}</span>
-                    </div>
-                    <div class="item-info">
-                        <h4>${item.product_name}</h4>
-                        ${variantHTML} 
-                    </div>
-                    <div class="item-price">
-                        <span style="font-weight: 500;">${formattedPrice} Đ</span>
-                    </div>
+            <div class="checkout-item">
+                <div class="item-image-wrapper">
+                    <img src="${imgSrc}" alt="${item.product_name}">
+                    <span class="item-quantity">${item.quantity}</span>
                 </div>
-            `;
+                <div class="item-info">
+                    <h4>${item.product_name}</h4>
+                    ${variantHTML} 
+                </div>
+                <div class="item-price">
+                    <span style="font-weight: 500;">${formattedPrice} Đ</span>
+                </div>
+            </div>
+        `;
             cartItemsContainer.insertAdjacentHTML('beforeend', itemHTML);
         });
 
