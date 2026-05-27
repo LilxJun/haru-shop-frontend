@@ -229,4 +229,35 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+
+    // --- ICON MẮT CHO TRANG ĐĂNG KÝ ---
+    const toggleRegisterPass = document.getElementById('toggle-register-password');
+    if (toggleRegisterPass) {
+        toggleRegisterPass.addEventListener('click', () => {
+            const input = document.getElementById('password');
+            const icon = toggleRegisterPass.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
+    }
+
+    const toggleConfirmPass = document.getElementById('toggle-confirm-password');
+    if (toggleConfirmPass) {
+        toggleConfirmPass.addEventListener('click', () => {
+            const input = document.getElementById('confirm-password');
+            const icon = toggleConfirmPass.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        });
+    }
 });
