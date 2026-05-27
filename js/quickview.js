@@ -1,13 +1,6 @@
-/* =======================================
-   SCRIPT CHO QUICK VIEW MODAL (FINAL FIX)
-   (File: JS/quickView.JS)
-======================================= */
-
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Lấy các thành phần của Popup Quick View
     const qvOverlay = document.getElementById('quick-view-overlay');
     const qvCloseBtn = document.getElementById('quick-view-close-btn');
-
     const qvImg = document.getElementById('qv-main-img');
     const qvTitle = document.getElementById('qv-title');
     const qvPrice = document.getElementById('qv-price');
@@ -15,203 +8,163 @@ document.addEventListener('DOMContentLoaded', () => {
     const qvColorList = document.getElementById('qv-color-list');
     const qvModelText = document.getElementById('qv-selected-model');
     const qvColorText = document.getElementById('qv-selected-color');
-
     const qtyInput = document.getElementById('qv-input-qty');
     const btnMinus = document.getElementById('qv-qty-minus');
     const btnPlus = document.getElementById('qv-qty-plus');
-
     const btnAddToCart = document.getElementById('qv-add-to-cart');
     const btnViewDetails = document.getElementById('qv-view-details');
 
     let currentProduct = null;
+    let selectedVariantId = null;
     let selectedModel = '';
     let selectedColor = '';
     let currentPrice = 0;
     let quantity = 1;
-    let qvImages = []; // Mảng chứa ảnh màu sắc mới thêm
 
-    // 2. Bắt sự kiện bấm "THÊM NHANH" (Class cũ của bạn: quick-add-btn)
     document.body.addEventListener('click', async (e) => {
-        // Hỗ trợ cả 2 trường hợp: Click thẳng vào nút hoặc click vào text/icon bên trong nút
         const btn = e.target.closest('.quick-add-btn') || e.target.closest('.reco-quick-add');
         if (btn) {
             e.preventDefault();
             const productId = btn.getAttribute('data-id');
-            if (productId) {
-                await openQuickView(productId);
-            } else {
-                alert("Lỗi: Nút này chưa được gắn ID sản phẩm (data-id)");
-            }
+            if (productId) await openQuickView(productId);
         }
     });
 
-    // 3. Hàm gọi API từ Database và hiển thị Popup
     async function openQuickView(id) {
         try {
-            // Lôi dữ liệu từ Server
             const res = await fetch(`https://haru-shop-backend-production.up.railway.app/api/products/${id}`);
             const product = await res.json();
 
-            if (!product || product.error) {
-                alert("Không tìm thấy thông tin sản phẩm này.");
-                return;
-            }
-
-            // Ép kiểu an toàn (Bổ sung từ code mới)
-            if (product.colors && typeof product.colors === 'string') {
-                try { product.colors = JSON.parse(product.colors); } catch (err) { product.colors = []; }
-            }
-            if (product.models && typeof product.models === 'string') {
-                try { product.models = JSON.parse(product.models); } catch (err) { product.models = []; }
-            }
+            if (!product || product.error) { alert("Không tìm thấy thông tin sản phẩm."); return; }
 
             currentProduct = product;
-
-            // Reset dữ liệu về mặc định
             quantity = 1;
-            qtyInput.value = quantity;
+            qtyInput.value = 1;
             qvTitle.innerText = product.name;
             btnViewDetails.href = `product-detail.html?id=${product.id}`;
 
-            // Nạp mảng ảnh (Bổ sung từ code mới)
-            qvImages = [];
-            if (product.colors && product.colors.length > 0) {
-                product.colors.forEach(c => {
-                    let img = c.image || product.image;
-                    if (img) qvImages.push(img.startsWith('../') ? img : '../' + img);
-                });
-            } else if (product.image) {
-                qvImages.push(product.image.startsWith('../') ? product.image : '../' + product.image);
-            }
+            const variants = product.variants || [];
 
-            // Xử lý Danh sách Model (Cũ giữ nguyên)
-            if (product.models && product.models.length > 0) {
-                selectedModel = product.models[0].name;
-                currentPrice = product.models[0].price;
+            // ── LẤY DANH SÁCH MODEL DUY NHẤT ──
+            const uniqueModels = [...new Set(variants.map(v => v.model_name).filter(Boolean))];
+
+            if (uniqueModels.length > 0) {
+                selectedModel = uniqueModels[0];
                 qvModelText.innerText = selectedModel;
-
-                qvModelList.innerHTML = product.models.map((m, index) => `
-                    <button class="model-btn option-btn ${index === 0 ? 'active' : ''}" 
-                            data-name="${m.name}" data-price="${m.price}">${m.name}</button>
+                qvModelList.innerHTML = uniqueModels.map((m, i) => `
+                    <button class="model-btn option-btn ${i === 0 ? 'active' : ''}" data-name="${m}">${m}</button>
                 `).join('');
             } else {
-                selectedModel = 'Mặc định';
-                currentPrice = product.price;
+                selectedModel = '';
                 qvModelText.innerText = '';
                 qvModelList.innerHTML = '<span style="font-size:13px; color:#999;">Không có tuỳ chọn</span>';
             }
 
-            // ==========================================
-            // XỬ LÝ DANH SÁCH MÀU SẮC DẠNG ẢNH NHỎ
-            // ==========================================
-            if (product.colors && product.colors.length > 0) {
-                selectedColor = product.colors[0].name;
-                qvColorText.innerText = selectedColor;
+            // ── VẼ MÀU THEO MODEL ĐANG CHỌN ──
+            renderColors(variants, selectedModel);
 
-                qvColorList.innerHTML = product.colors.map((c, index) => {
-                    let imgSrc = c.image && c.image.startsWith('../') ? c.image : '../' + (c.image || product.image);
-                    return `
-                    <button class="color-variant-btn ${index === 0 ? 'active' : ''}" 
-                            data-name="${c.name}" data-index="${index}" title="${c.name}">
-                        <img src="${imgSrc}" alt="${c.name}">
-                    </button>
-                    `;
-                }).join('');
-            } else {
-                selectedColor = 'Mặc định';
-                qvColorText.innerText = '';
-                qvColorList.innerHTML = '<span style="font-size:13px; color:#999;">Không có tuỳ chọn</span>';
-            }
-
-            // Hiển thị Ảnh chính và Giá tiền
-            qvImg.src = qvImages[0] || '';
-            updatePrice();
-
-            // Kích hoạt tính năng click chọn màu/model (Gọi lại để gắn event cho các thẻ vừa tạo)
-            bindOptionEvents();
-
-            // Hiện Popup ra giữa màn hình
             qvOverlay.classList.add('active');
+            bindOptionEvents(variants);
 
-        } catch (error) {
-            console.error("Lỗi tải dữ liệu Quick View:", error);
-            alert("Lỗi kết nối Server! Vui lòng kiểm tra lại Node.js");
+        } catch (err) {
+            console.error("Lỗi Quick View:", err);
+            alert("Lỗi kết nối Server!");
         }
     }
 
-    // 4. Kịch bản khi người dùng bấm chọn Model hoặc Color
-    function bindOptionEvents() {
-        // Khách bấm chọn Model
-        qvModelList.querySelectorAll('.model-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                qvModelList.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
+    function renderColors(variants, modelName) {
+        // Lọc variant theo model đang chọn (nếu có model)
+        const filtered = modelName
+            ? variants.filter(v => v.model_name === modelName)
+            : variants;
 
-                selectedModel = e.target.getAttribute('data-name');
-                currentPrice = e.target.getAttribute('data-price');
+        if (filtered.length === 0) {
+            qvColorList.innerHTML = '<span style="font-size:13px; color:#999;">Không có tuỳ chọn</span>';
+            return;
+        }
+
+        // Chọn màu đầu tiên mặc định
+        const first = filtered[0];
+        selectedColor = first.color_name;
+        selectedVariantId = first.variant_id;
+        currentPrice = first.price;
+        qvColorText.innerText = selectedColor;
+
+        // Hiển thị ảnh màu đầu tiên
+        const firstImg = first.color_img ? (first.color_img.startsWith('../') ? first.color_img : '../' + first.color_img) : ('../' + currentProduct.image);
+        qvImg.src = firstImg;
+        updatePrice();
+
+        qvColorList.innerHTML = filtered.map((v, i) => {
+            let imgSrc = v.color_img ? (v.color_img.startsWith('../') ? v.color_img : '../' + v.color_img) : ('../' + currentProduct.image);
+            return `
+            <button class="color-variant-btn ${i === 0 ? 'active' : ''}"
+                    data-variant-id="${v.variant_id}"
+                    data-name="${v.color_name}"
+                    data-price="${v.price}"
+                    data-img="${imgSrc}"
+                    title="${v.color_name}">
+                <img src="${imgSrc}" alt="${v.color_name}">
+            </button>`;
+        }).join('');
+    }
+
+    function bindOptionEvents(variants) {
+        // Chọn Model
+        qvModelList.querySelectorAll('.model-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                qvModelList.querySelectorAll('.model-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                selectedModel = btn.getAttribute('data-name');
                 qvModelText.innerText = selectedModel;
-                updatePrice();
+                renderColors(variants, selectedModel);
+                // Gắn lại event màu sau khi render mới
+                bindColorEvents();
             });
         });
 
-        // ==========================================
-        // KHÁCH BẤM CHỌN MÀU (DẠNG ẢNH)
-        // ==========================================
+        bindColorEvents();
+    }
+
+    function bindColorEvents() {
         qvColorList.querySelectorAll('.color-variant-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const targetBtn = e.target.closest('.color-variant-btn');
-                if (!targetBtn) return;
-
+            btn.addEventListener('click', () => {
                 qvColorList.querySelectorAll('.color-variant-btn').forEach(b => b.classList.remove('active'));
-                targetBtn.classList.add('active');
-
-                selectedColor = targetBtn.getAttribute('data-name');
+                btn.classList.add('active');
+                selectedColor = btn.getAttribute('data-name');
+                selectedVariantId = btn.getAttribute('data-variant-id');
+                currentPrice = btn.getAttribute('data-price');
                 qvColorText.innerText = selectedColor;
-
-                // Tự động đổi ảnh tương ứng với màu
-                const idx = parseInt(targetBtn.getAttribute('data-index'));
-                if (!isNaN(idx) && qvImages[idx]) {
-                    qvImg.src = qvImages[idx];
-                }
+                qvImg.src = btn.getAttribute('data-img');
+                updatePrice();
             });
         });
     }
 
-    // 5. Hàm tính toán và hiển thị giá
     function updatePrice() {
         qvPrice.innerText = Number(currentPrice).toLocaleString('vi-VN') + ' Đ';
     }
 
-    // 6. Nút tăng giảm số lượng
     if (btnMinus) btnMinus.addEventListener('click', () => { if (quantity > 1) { quantity--; qtyInput.value = quantity; } });
     if (btnPlus) btnPlus.addEventListener('click', () => { quantity++; qtyInput.value = quantity; });
 
-    // 7. CHỐT ĐƠN - Gửi dữ liệu vào Giỏ hàng (Database)
     if (btnAddToCart) {
         btnAddToCart.addEventListener('click', async () => {
             if (!currentProduct) return;
 
-            // --- BẮT ĐẦU FIX LỖI EMAIL: Lấy email động theo tài khoản đang đăng nhập ---
             let userEmail = null;
             try {
                 const user = JSON.parse(localStorage.getItem('haru-current-user'));
                 if (user && user.email) userEmail = user.email;
             } catch (e) { }
-
-            // Backup phòng trường hợp
             if (!userEmail) userEmail = localStorage.getItem('user_email') || localStorage.getItem('email');
 
-            // Chặn nếu chưa đăng nhập
             if (!userEmail) {
-                if (typeof showToast === 'function') {
-                    showToast("Vui lòng đăng nhập để mua hàng!", false);
-                } else {
-                    alert("Vui lòng đăng nhập để mua hàng!");
-                }
+                if (typeof showToast === 'function') showToast("Vui lòng đăng nhập để mua hàng!", false);
+                else alert("Vui lòng đăng nhập để mua hàng!");
                 setTimeout(() => window.location.href = 'login.html', 1500);
                 return;
             }
-            // --- KẾT THÚC FIX LỖI EMAIL ---
 
             const originalText = btnAddToCart.innerText;
             btnAddToCart.innerText = "ĐANG THÊM VÀO GIỎ...";
@@ -222,9 +175,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        user_email: userEmail, // SỬ DỤNG EMAIL ĐỘNG Ở ĐÂY
+                        user_email: userEmail,
                         product_id: currentProduct.id,
                         quantity: quantity,
+                        variant_id: selectedVariantId,  // ✅ Gửi variant_id chuẩn
                         selected_model: selectedModel,
                         selected_color: selectedColor
                     })
@@ -232,32 +186,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
 
                 if (result.success) {
-                    qvOverlay.classList.remove('active'); // Tắt popup
+                    qvOverlay.classList.remove('active');
 
                     let variantInfo = [];
-                    if (selectedModel && selectedModel !== 'Mặc định') variantInfo.push(selectedModel);
-                    if (selectedColor && selectedColor !== 'Mặc định') variantInfo.push(selectedColor);
+                    if (selectedModel) variantInfo.push(selectedModel);
+                    if (selectedColor) variantInfo.push(selectedColor);
+                    let displayName = currentProduct.name + (variantInfo.length > 0 ? ` (${variantInfo.join(' - ')})` : '');
 
-                    let displayName = currentProduct.name;
-                    if (variantInfo.length > 0) {
-                        displayName += ` (${variantInfo.join(' - ')})`;
-                    }
-
-                    if (typeof showToast === 'function') {
-                        showToast(`Đã thêm ${displayName} vào giỏ!`);
-                    } else {
-                        const toastContainer = document.getElementById('toast-container');
-                        if (toastContainer) {
-                            toastContainer.innerHTML = `<div class="toast success">Đã thêm ${displayName} vào giỏ hàng!</div>`;
-                            setTimeout(() => toastContainer.innerHTML = '', 3000);
-                        }
-                    }
-
-                    if (typeof loadCartFromDB === 'function') {
-                        loadCartFromDB();
-                    } else {
-                        setTimeout(() => { window.location.reload(); }, 1000);
-                    }
+                    if (typeof showToast === 'function') showToast(`Đã thêm ${displayName} vào giỏ!`);
+                    if (typeof loadCartFromDB === 'function') loadCartFromDB();
+                    else setTimeout(() => window.location.reload(), 1000);
                 }
             } catch (error) {
                 console.error("Lỗi thêm vào giỏ:", error);
@@ -269,9 +207,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // 8. Chức năng tắt Popup
     if (qvCloseBtn) qvCloseBtn.addEventListener('click', () => qvOverlay.classList.remove('active'));
-    if (qvOverlay) qvOverlay.addEventListener('click', (e) => {
-        if (e.target === qvOverlay) qvOverlay.classList.remove('active');
-    });
+    if (qvOverlay) qvOverlay.addEventListener('click', (e) => { if (e.target === qvOverlay) qvOverlay.classList.remove('active'); });
 });
