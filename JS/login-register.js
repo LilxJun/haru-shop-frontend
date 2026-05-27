@@ -212,14 +212,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function togglePassword(inputId, icon) {
-        const input = document.getElementById(inputId);
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.innerHTML = '<i class="fas fa-eye-slash"></i>';
-        } else {
-            input.type = 'password';
-            icon.innerHTML = '<i class="fas fa-eye"></i>';
-        }
+    // --- ICON MẮT ẨN/HIỆN MẬT KHẨU ---
+    const togglePasswordBtn = document.getElementById('toggle-password-btn');
+    if (togglePasswordBtn) {
+        togglePasswordBtn.addEventListener('click', () => {
+            const input = document.getElementById('password');
+            const icon = togglePasswordBtn.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        });
     }
 });
