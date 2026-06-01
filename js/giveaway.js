@@ -249,12 +249,26 @@ function launchConfetti(count = 40) {
 }
 
 // ── HELPERS ──────────────────────────────────────────────────
+// ── HELPERS ──────────────────────────────────────────────────
 function getSafeUser() {
     try {
-        const u = JSON.parse(localStorage.getItem('user'));
-        if (u && u.email) return u;
-    } catch (e) { }
-    return null;
+        // ⚠️ SẾP ĐỔI CHỮ 'user' BÊN DƯỚI THÀNH ĐÚNG CÁI KEY TRONG LOCAL STORAGE CỦA SẾP NHÉ!
+        // (Ví dụ: 'currentUser', 'account', 'userData'...)
+        const dataString = localStorage.getItem('user');
+
+        if (dataString) {
+            const u = JSON.parse(dataString);
+
+            // Trường hợp 1: Dữ liệu lưu trực tiếp { email: "...", username: "..." }
+            if (u && u.email) return u;
+
+            // Trường hợp 2: Dữ liệu bị lồng vào trong 1 cục { user: { email: "..." } }
+            if (u && u.user && u.user.email) return u.user;
+        }
+    } catch (e) {
+        console.error("Lỗi đọc dữ liệu user:", e);
+    }
+    return null; // Không tìm thấy hoặc chưa đăng nhập
 }
 
 function copyCode(code) {
