@@ -618,3 +618,27 @@
         transform: translateY(-200px) scale(1);
     }
 }
+
+/* --- SỬA LỖI FOOTER BỊ ĐEN --- */
+.main-footer-content,
+.main-footer-content * {
+    background-color: #ffffff !important;
+    color: #333333 !important;
+    /* Đổi màu chữ về đen cho dễ đọc */
+}
+
+/* Ép màu viền và nền của các khối bên trong Footer */
+.footer-top-line {
+    border-top: 1px solid #e0e0e0 !important;
+}
+
+.subscribe-form .email-input,
+.subscribe-form .submit-btn {
+    background-color: #f9f9f9 !important;
+    color: #333 !important;
+    border: 1px solid #ccc !important;
+}
+
+.social-icon-link {
+    color: #333 !important;
+}

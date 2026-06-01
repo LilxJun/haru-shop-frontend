@@ -251,7 +251,7 @@ function launchConfetti(count = 40) {
 // ── HELPERS ──────────────────────────────────────────────────
 function getSafeUser() {
     try {
-        const u = JSON.parse(localStorage.getItem('haru-current-user'));
+        const u = JSON.parse(localStorage.getItem('user'));
         if (u && u.email) return u;
     } catch (e) { }
     return null;
