@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash Giveaway - Haru Shop</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/header-footer.css">
+    <!-- Link file CSS mới tách ra ở đây nè sếp -->
+    <link rel="stylesheet" href="css/giveaway.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body class="giveaway-page">
+
+    <header class="main-header">
+        <div class="header-left">
+            <div class="logo"><a href="index.html">Haru</a></div>
+        </div>
+        <nav class="header-nav">
+            <div class="nav-close-btn"><i class="fas fa-times"></i></div>
+            <ul>
+                <li><a href="index.html">TRANG CHỦ</a></li>
+                <li><a href="mice.html">CHUỘT</a></li>
+                <li><a href="keyboard.html">BÀN PHÍM</a></li>
+                <li><a href="headphone.html">TAI NGHE</a></li>
+                <li><a href="accessories.html">ACCESSORIES</a></li>
+                <li class="nav-item-dropdown">
+                    <a href="#">HƯỚNG DẪN <i class="fas fa-chevron-down dropdown-arrow"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Hướng dẫn sử dụng</a></li>
+                        <li><a href="#">Tải phần mềm</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+        <div class="header-right">
+            <div class="Icon-NguoiDung">
+                <a href="#" class="header-icon-link" id="header-search-icon"><i class="fas fa-search"></i></a>
+                <div class="user-menu-container" id="user-menu-logged-out">
+                    <a href="login.html" class="header-icon-link"><i class="fas fa-user"></i></a>
+                    <div class="user-dropdown-menu">
+                        <a href="login.html" class="dropdown-item">Đăng nhập</a>
+                        <a href="register.html" class="dropdown-item">Đăng ký</a>
+                    </div>
+                </div>
+                <div class="user-menu-container" id="user-menu-logged-in" style="display: none;">
+                    <a href="profile.html" class="header-icon-link" id="current-username">...</a>
+                    <div class="user-dropdown-menu">
+                        <a href="profile.html" class="dropdown-item">Tài khoản của tôi</a>
+                        <a href="#" class="dropdown-item" id="logout-button">Đăng xuất</a>
+                    </div>
+                </div>
+                <a href="wishlist.html" class="header-icon-link">
+                    <i class="fas fa-heart"></i>
+                    <span class="count-badge" id="wishlist-count">0</span>
+                </a>
+                <a href="cart.html" class="header-icon-link" id="header-cart-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="count-badge" id="cart-count">0</span>
+                </a>
+            </div>
+        </div>
+        <div class="mobile-menu-toggle"><i class="fas fa-bars"></i></div>
+    </header>
+
+    <!-- HERO -->
+    <section class="giveaway-hero">
+        <div class="particles" id="particles"></div>
+        <div class="flash-badge">⚡ FLASH GIVEAWAY</div>
+        <h1>TRY YOUR<br>LUCK</h1>
+        <p>Quay số may mắn — trúng chuột gaming xịn hoặc voucher giảm giá. Mỗi tài khoản chỉ được quay <strong
+                style="color:#f5c842">1 lần duy nhất</strong>.</p>
+    </section>
+
+    <!-- GRAND PRIZE -->
+    <section class="grand-prize-section">
+        <div class="grand-prize-card">
+            <img src="img/ATK-F1-Leviathan.jpg" alt="ATK F1 Leviathan" class="grand-prize-img"
+                onerror="this.style.display='none'">
+            <div class="grand-prize-info">
+                <div class="grand-prize-label">🏆 GIẢI GRAND PRIZE</div>
+                <div class="grand-prize-name">Chuột Gaming ATK Blazing Sky F1<br><span style="color:var(--gold)">Màu
+                        Leviathan</span></div>
+                <div style="color:#888; font-size:13px; margin: 8px 0 12px;">Trị giá 1.700.000 Đ — Chuột gaming siêu nhẹ
+                    cao cấp nhất của ATK</div>
+                <span class="grand-prize-chance">✦ Tỉ lệ trúng: 0.5%</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- OTHER PRIZES -->
+    <section class="prizes-section">
+        <h2>CÁC PHẦN THƯỞNG KHÁC</h2>
+        <div class="prizes-grid">
+            <div class="prize-card">
+                <div class="prize-icon">🎫</div>
+                <div class="prize-name">Voucher giảm 20%</div>
+                <div class="prize-chance">Tỉ lệ: 5%</div>
+            </div>
+            <div class="prize-card">
+                <div class="prize-icon">🎟</div>
+                <div class="prize-name">Voucher giảm 15%</div>
+                <div class="prize-chance">Tỉ lệ: 10%</div>
+            </div>
+            <div class="prize-card">
+                <div class="prize-icon">🏷</div>
+                <div class="prize-name">Voucher giảm 10%</div>
+                <div class="prize-chance">Tỉ lệ: 15%</div>
+            </div>
+            <div class="prize-card">
+                <div class="prize-icon">💌</div>
+                <div class="prize-name">Voucher giảm 5%</div>
+                <div class="prize-chance">Tỉ lệ: 20%</div>
+            </div>
+            <div class="prize-card">
+                <div class="prize-icon">🍀</div>
+                <div class="prize-name">Chúc bạn may mắn lần sau</div>
+                <div class="prize-chance">Tỉ lệ: 49.5%</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SPIN SECTION -->
+    <section class="spin-section">
+
+        <!-- Chưa đăng nhập -->
+        <div id="login-notice">
+            <p>Bạn cần đăng nhập để tham gia giveaway và lưu phần thưởng!</p>
+            <a href="login.html" class="btn-login-giveaway">ĐĂNG NHẬP ĐỂ THAM GIA</a>
+        </div>
+
+        <!-- Đã đăng nhập, chưa quay -->
+        <div id="spin-box">
+            <div class="spin-title">QUAY SỐ MAY MẮN</div>
+            <div class="spin-subtitle">Bấm nút bên dưới để quay — chỉ 1 lần duy nhất!</div>
+
+            <div class="slot-wrapper">
+                <div class="slot-indicator"></div>
+                <div class="slot-reel">
+                    <div class="slot-items" id="slot-items">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-spin" id="btn-spin">
+                ⚡ THỬ VẬN MAY
+            </button>
+        </div>
+
+        <!-- Đã quay rồi -->
+        <div id="already-spun">
+            <div class="result-display" id="past-result-card">
+                <div class="result-icon" id="past-result-icon">🎁</div>
+                <div class="result-title" id="past-result-title">Bạn đã tham gia!</div>
+                <div class="result-desc" id="past-result-desc"></div>
+                <div id="past-coupon-area"></div>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- RULES -->
+    <section class="rules-section">
+        <div class="rules-box">
+            <h3>THỂ LỆ CHƯƠNG TRÌNH</h3>
+            <ul>
+                <li>Mỗi tài khoản chỉ được tham gia quay số 1 lần duy nhất.</li>
+                <li>Cần đăng nhập tài khoản Haru Shop để tham gia.</li>
+                <li>Voucher trúng thưởng sẽ tự động lưu vào tài khoản của bạn.</li>
+                <li>Voucher có thể sử dụng khi thanh toán đơn hàng tại Haru Shop.</li>
+                <li>Giải Grand Prize (chuột ATK F1 Leviathan) sẽ được liên hệ giao hàng qua email đăng ký.</li>
+                <li>Chương trình diễn ra không giới hạn thời gian, số lượng giải Grand Prize có hạn.</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- RESULT POPUP -->
+    <div id="result-popup">
+        <div class="popup-card" id="popup-card">
+            <span class="popup-emoji" id="popup-emoji">🎉</span>
+            <div class="popup-title" id="popup-title">KẾT QUẢ</div>
+            <div class="popup-desc" id="popup-desc"></div>
+            <div id="popup-coupon-area"></div>
+            <button class="popup-close" id="popup-close">ĐÓNG LẠI</button>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <hr style="border: 1px solid #222; width: 100%;">
+    <footer class="main-footer-content">
+        <div class="footer-top-line"></div>
+        <div class="footer-columns-wrapper">
+            <div class="footer-col subscribe-col">
+                <h4 class="col-title">ĐĂNG KÝ NHẬN TIN</h4>
+                <p>Bạn muốn nhận khuyến mãi đặc biệt? Đăng ký ngay.</p>
+                <div class="subscribe-form">
+                    <input type="email" placeholder="Địa chỉ Email" class="email-input">
+                    <button class="submit-btn">ĐĂNG KÝ</button>
+                </div>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/woocs.junz" class="social-icon-link"><i
+                            class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/_woocs.junz_/" class="social-icon-link"><i
+                            class="fab fa-instagram"></i></a>
+                    <a href="http://www.youtube.com/@_woocs.junz_" class="social-icon-link"><i
+                            class="fab fa-youtube"></i></a>
+                    <a href="https://mail.google.com/mail/u/0/#inbox?compose=new" class="social-icon-link"><i
+                            class="far fa-envelope"></i></a>
+                </div>
+            </div>
+            <div class="footer-col support-col">
+                <h4 class="col-title">SUPPORT</h4>
+                <ul>
+                    <li><a href="#">FAQs</a></li>
+                    <li><a href="#">Chính sách vận chuyển</a></li>
+                    <li><a href="#">Chính sách đổi trả</a></li>
+                    <li><a href="#">Bảo hành</a></li>
+                </ul>
+            </div>
+            <div class="footer-col contact-col">
+                <h4 class="col-title">JUICEJUN SHOP</h4>
+                <p class="contact-line">Email: linn70180@gmail.com</p>
+                <p class="contact-line">Hotline: +84 796 722 41</p>
+            </div>
+        </div>
+        <div class="footer-bottom-wrapper">
+            <p class="copyright">JUICEJUN SHOP</p>
+            <div class="payment-methods">
+                <img src="img/CacHinhThucThanhToan.png" alt="Payment Methods" class="payment-image">
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/header.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/giveaway.js"></script>
+</body>
+
+</html>

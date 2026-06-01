@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="color-item" style="display: flex; gap: 10px; margin-bottom: 10px;">
                         <input type="color" class="color-hex" value="#000000" style="height: 38px; width: 50px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px;" title="Chọn mã màu">
                         <input type="text" class="color-name" placeholder="Tên màu (VD: Black)" required>
-                        <input type="text" class="color-img" placeholder="Link ảnh (VD: IMG/den.png)" required>
+                        <input type="text" class="color-img" placeholder="img/TenFile.jpg (VD: img/ATK-F1-Black.jpg)" required>
                         <button type="button" class="btn btn-delete" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
                     </div>`;
 
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.updateStock = async (id) => {
         const newStock = document.getElementById(`stock-${id}`).value;
         try {
-            const res = await fetch(`https://haru-shop-backend-production.up.railway.app/api/admin/products/${id}/stock`, {
+            const res = await fetch(`https://haru-shop-backend-production.up.railway.app/api/products/admin/${id}/stock`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ stock: newStock })
@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.setOutOfStock = async (id) => {
         if (confirm("Xác nhận đổi sản phẩm này thành Hết hàng?")) {
             try {
-                const res = await fetch(`https://haru-shop-backend-production.up.railway.app/api/admin/products/${id}/stock`, {
+                const res = await fetch(`https://haru-shop-backend-production.up.railway.app/api/products/admin/${id}/stock`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ stock: 0 })
@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.deleteProduct = async (id) => {
         if (confirm("CẢNH BÁO: Bạn có chắc chắn muốn xóa hẳn sản phẩm này khỏi Shop không?")) {
             try {
-                const res = await fetch(`https://haru-shop-backend-production.up.railway.app/api/admin/products/${id}`, {
+                const res = await fetch(`https://haru-shop-backend-production.up.railway.app/api/products/admin/${id}`, {
                     method: 'DELETE'
                 });
                 if (res.ok) {
@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Đang tải đơn hàng...</td></tr>';
 
         try {
-            const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/admin/orders');
+            const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/orders/admin');
 
             const textResponse = await response.text();
             let orders;
@@ -358,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     window.updateOrderStatus = async (id, newStatus) => {
         try {
-            const res = await fetch(`https://haru-shop-backend-production.up.railway.app/api/admin/orders/${id}/status`, {
+            const res = await fetch(`https://haru-shop-backend-production.up.railway.app/api/orders/admin/${id}/status`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus })
