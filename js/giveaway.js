@@ -68,20 +68,27 @@ async function checkUserStatus() {
         return;
     }
 
+    // Đã đăng nhập — ẩn login notice trước
+    hide('login-notice');
+
     try {
         const res = await fetch(`${API}/api/giveaway/check?email=${encodeURIComponent(user.email)}`);
         const data = await res.json();
 
         if (data.hasSpun) {
+            hide('spin-box');
             showPastResult(data.entry);
         } else {
             show('spin-box');
+            hide('already-spun');
         }
     } catch (e) {
-        show('spin-box'); // Nếu lỗi, vẫn cho quay (server sẽ check lại)
+        console.error('Lỗi check giveaway:', e);
+        // API chưa có → vẫn cho thấy spin box
+        show('spin-box');
+        hide('already-spun');
     }
 }
-
 // ── SPIN ────────────────────────────────────────────────────
 async function doSpin() {
     const user = getSafeUser();
