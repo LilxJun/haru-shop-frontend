@@ -1,4 +1,4 @@
-const pool = require('../db'); // Trỏ đến file db.js (nếu sếp đã tách) hoặc cấu hình pool của sếp
+const pool = require('../config/db');
 
 const PRIZES = [
     { id: 'mouse', name: 'Chuột ATK Blazing Sky F1 Leviathan', type: 'mouse', weight: 0.5 },
