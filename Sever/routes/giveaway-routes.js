@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const giveawayController = require('../controllers/giveaway-controller');
 
-// Khai báo các đường dẫn API và trỏ tới hàm xử lý trong Controller
-router.get('/check', giveawayController.checkStatus);
-router.post('/spin', giveawayController.spinWheel);
+// Đảm bảo tên hàm ở đây khớp với tên hàm đã export bên file controller
+router.get('/check', giveawayController.checkGiveaway);
+router.post('/spin', giveawayController.spinGiveaway);
 
 module.exports = router;
