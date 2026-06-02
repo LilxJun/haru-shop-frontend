@@ -1,135 +1,87 @@
-const pool = require('../config/db'); // Nếu sếp để DB ở thư mục config
-// hoặc const pool = require('../db'); tùy cấu trúc của sếp
+const pool = require('../config/db');
 
-// --- Các hàm phụ trợ (để nguyên bên trong file này) ---
-const PRIZES = [
-    { id: 'mouse', name: 'Chuột ATK Blazing Sky F1 Leviathan', type: 'mouse', weight: 0.5 },
-    { id: 'v20', name: 'Voucher giảm 20%', type: 'voucher', weight: 5, discount: 20 },
-    { id: 'v15', name: 'Voucher giảm 15%', type: 'voucher', weight: 10, discount: 15 },
-    { id: 'v10', name: 'Voucher giảm 10%', type: 'voucher', weight: 15, discount: 10 },
-    { id: 'v5', name: 'Voucher giảm 5%', type: 'voucher', weight: 20, discount: 5 },
-    { id: 'none', name: 'Chúc bạn may mắn lần sau', type: 'none', weight: 49.5 },
-];
-
-function rollPrize() {
-    const total = PRIZES.reduce((s, p) => s + p.weight, 0);
-    let rand = Math.random() * total;
-    for (const p of PRIZES) {
-        rand -= p.weight;
-        if (rand <= 0) return p;
-    }
-    return PRIZES[PRIZES.length - 1];
-}
-
-function generateCouponCode(prefix) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let code = prefix;
-    for (let i = 0; i < 6; i++) code += chars[Math.floor(Math.random() * chars.length)];
-    return code;
-}
-
-// --- Các hàm Controller (Bắt buộc phải có chữ exports.) ---
-
-// Hàm kiểm tra lượt quay
-exports.checkGiveaway = async (req, res) => {
-    const { email } = req.query;
-    if (!email) return res.status(400).json({ error: 'Thiếu email' });
-
-    try {
-        const userRes = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
-        if (userRes.rows.length === 0) return res.json({ hasSpun: false });
-        const userId = userRes.rows[0].id;
-
-        const entryRes = await pool.query(
-            'SELECT * FROM giveaway_entries WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1',
-            [userId]
-        );
-
-        if (entryRes.rows.length === 0) return res.json({ hasSpun: false });
-
-        const e = entryRes.rows[0];
-        res.json({
-            hasSpun: true,
-            entry: {
-                prizeId: e.prize_type === 'none' ? 'none' : e.coupon_code,
-                prizeName: e.prize_name,
-                prizeType: e.prize_type,
-                couponCode: e.coupon_code
-            }
-        });
-    } catch (err) {
-        console.error('❌ LỖI CHECK GIVEAWAY:', err.message);
-        res.status(500).json({ error: err.message });
-    }
-};
-
-// Hàm xử lý quay số
-exports.spinGiveaway = async (req, res) => {
-    const { email } = req.body;
-    if (!email) return res.status(400).json({ error: 'Thiếu email' });
-
+// BẮT BUỘC CÓ CHỮ exports. Ở TẤT CẢ CÁC HÀM
+exports.createOrder = async (req, res) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
 
-        // Tìm user
+        const { email, lastname, address, city, phone, shipping_fee, total_amount, payment_method } = req.body;
+
         const userRes = await client.query('SELECT id FROM users WHERE email = $1', [email]);
-        if (userRes.rows.length === 0) {
-            await client.query('ROLLBACK');
-            return res.status(404).json({ error: 'Không tìm thấy tài khoản' });
-        }
+        if (userRes.rows.length === 0) throw new Error('Không tìm thấy tài khoản');
         const userId = userRes.rows[0].id;
 
-        // Kiểm tra đã quay chưa
-        const checkRes = await client.query(
-            'SELECT id FROM giveaway_entries WHERE user_id = $1',
-            [userId]
-        );
-        if (checkRes.rows.length > 0) {
-            await client.query('ROLLBACK');
-            return res.status(400).json({ error: 'Bạn đã tham gia rồi!' });
+        const cartRes = await client.query(`
+            SELECT c.product_id, c.quantity, c.variant_id, c.selected_model, c.selected_color, COALESCE(pv.price, p.price) AS price
+            FROM cart c
+            JOIN products p ON c.product_id = p.id
+            LEFT JOIN product_variants pv ON c.variant_id = pv.variant_id
+            WHERE c.user_id = $1
+        `, [userId]);
+
+        if (cartRes.rows.length === 0) throw new Error('Giỏ hàng trống!');
+
+        const orderQuery = `INSERT INTO orders (user_id, email, customer_name, address, city, phone, shipping_fee, total_amount, payment_method) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`;
+        const orderResult = await client.query(orderQuery, [userId, email, lastname, address, city, phone, shipping_fee, total_amount, payment_method]);
+        const newOrderId = orderResult.rows[0].id;
+
+        for (let item of cartRes.rows) {
+            await client.query(`INSERT INTO order_items (order_id, product_id, quantity, price, variant_id, selected_model, selected_color) VALUES ($1, $2, $3, $4, $5, $6, $7)`, [newOrderId, item.product_id, item.quantity, item.price, item.variant_id, item.selected_model, item.selected_color]);
+            await client.query(`UPDATE products SET stock = GREATEST(stock - $1, 0) WHERE id = $2`, [item.quantity, item.product_id]);
         }
 
-        // Roll prize
-        const prize = rollPrize();
-        let couponCode = null;
-
-        // Tạo voucher nếu trúng
-        if (prize.type === 'voucher') {
-            const prefix = `HARU${prize.discount}_`;
-            couponCode = generateCouponCode(prefix);
-
-            await client.query(
-                `INSERT INTO coupons (code, discount_percent, is_freeship, is_active, user_id)
-                 VALUES ($1, $2, false, true, $3)`,
-                [couponCode, prize.discount, userId]
-            );
-        } else if (prize.type === 'mouse') {
-            couponCode = 'GRAND_PRIZE';
-        }
-
-        // Lưu lịch sử
-        await client.query(
-            `INSERT INTO giveaway_entries (user_id, prize_name, prize_type, coupon_code)
-             VALUES ($1, $2, $3, $4)`,
-            [userId, prize.name, prize.type, couponCode]
-        );
-
+        await client.query('DELETE FROM cart WHERE user_id = $1', [userId]);
         await client.query('COMMIT');
-
-        res.json({
-            success: true,
-            prizeId: prize.id,
-            prizeName: prize.name,
-            prizeType: prize.type,
-            couponCode: couponCode
-        });
-
+        res.json({ success: true, orderId: newOrderId });
     } catch (err) {
         await client.query('ROLLBACK');
-        console.error('❌ LỖI GIVEAWAY SPIN:', err.message);
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ success: false, message: err.message });
     } finally {
         client.release();
+    }
+};
+
+exports.getAdminOrders = async (req, res) => {
+    try {
+        const query = `
+            SELECT o.*, COALESCE(json_agg(json_build_object('product_id', oi.product_id, 'quantity', oi.quantity, 'price', oi.price, 'selected_model', oi.selected_model, 'selected_color', oi.selected_color, 'variant_id', oi.variant_id, 'product_name', p.name, 'product_image', COALESCE(pv.color_img, p.image))) FILTER (WHERE oi.id IS NOT NULL), '[]') as items
+            FROM orders o LEFT JOIN order_items oi ON o.id = oi.order_id LEFT JOIN products p ON oi.product_id = p.id LEFT JOIN product_variants pv ON oi.variant_id = pv.variant_id
+            GROUP BY o.id ORDER BY o.created_at DESC
+        `;
+        const result = await pool.query(query);
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.getUserOrders = async (req, res) => {
+    const { email } = req.params;
+    try {
+        const userRes = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
+        if (userRes.rows.length === 0) return res.json([]);
+        const userId = userRes.rows[0].id;
+
+        const query = `
+            SELECT o.*, COALESCE(json_agg(json_build_object('product_id', oi.product_id, 'quantity', oi.quantity, 'price', oi.price, 'selected_model', oi.selected_model, 'selected_color', oi.selected_color, 'product_name', p.name, 'product_image', COALESCE(pv.color_img, p.image))) FILTER (WHERE oi.id IS NOT NULL), '[]') as items
+            FROM orders o LEFT JOIN order_items oi ON o.id = oi.order_id LEFT JOIN products p ON oi.product_id = p.id LEFT JOIN product_variants pv ON oi.variant_id = pv.variant_id
+            WHERE o.user_id = $1 GROUP BY o.id ORDER BY o.created_at DESC
+        `;
+        const result = await pool.query(query, [userId]);
+        res.json(result.rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.updateOrderStatus = async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    try {
+        await pool.query('UPDATE orders SET status = $1 WHERE id = $2', [status, id]);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ success: false });
     }
 };
