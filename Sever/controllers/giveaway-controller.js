@@ -29,19 +29,15 @@ function generateCouponCode(prefix) {
 exports.checkGiveaway = async (req, res) => {
     const { email } = req.query;
     if (!email) return res.status(400).json({ error: 'Missing email' });
-
     try {
         const userRes = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
         if (userRes.rows.length === 0) return res.json({ hasSpun: false });
         const userId = userRes.rows[0].id;
-
         const entryRes = await pool.query(
             'SELECT * FROM giveaway_entries WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1',
             [userId]
         );
-
         if (entryRes.rows.length === 0) return res.json({ hasSpun: false });
-
         const e = entryRes.rows[0];
         res.json({
             hasSpun: true,
@@ -61,23 +57,18 @@ exports.checkGiveaway = async (req, res) => {
 exports.spinGiveaway = async (req, res) => {
     const { email } = req.body;
     if (!email) return res.status(400).json({ error: 'Missing email' });
-
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-
         const userRes = await client.query('SELECT id FROM users WHERE email = $1', [email]);
         if (userRes.rows.length === 0) throw new Error('User not found');
         const userId = userRes.rows[0].id;
-
         const checkRes = await client.query('SELECT id FROM giveaway_entries WHERE user_id = $1', [userId]);
         if (checkRes.rows.length > 0) throw new Error('Already participated');
-
         const prize = rollPrize();
         let couponCode = null;
-
         if (prize.type === 'voucher') {
-            couponCode = generateCouponCode(`HARU${prize.discount}_`);
+            couponCode = generateCouponCode('HARU' + prize.discount + '_');
             await client.query(
                 'INSERT INTO coupons (code, discount_percent, is_freeship, is_active, user_id) VALUES ($1, $2, false, true, $3)',
                 [couponCode, prize.discount, userId]
@@ -85,14 +76,11 @@ exports.spinGiveaway = async (req, res) => {
         } else if (prize.type === 'mouse') {
             couponCode = 'GRAND_PRIZE';
         }
-
         await client.query(
             'INSERT INTO giveaway_entries (user_id, prize_name, prize_type, coupon_code) VALUES ($1, $2, $3, $4)',
             [userId, prize.name, prize.type, couponCode]
         );
-
         await client.query('COMMIT');
-
         res.json({
             success: true,
             prizeId: prize.id,
@@ -100,7 +88,6 @@ exports.spinGiveaway = async (req, res) => {
             prizeType: prize.type,
             couponCode: couponCode
         });
-
     } catch (err) {
         await client.query('ROLLBACK');
         console.error('ERROR spinGiveaway:', err.message);
