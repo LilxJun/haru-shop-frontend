@@ -15,7 +15,7 @@ const productRoutes = require('./routes/product-routes');
 const cartRoutes = require('./routes/cart-routes');
 const orderRoutes = require('./routes/order-routes');
 const couponRoutes = require('./routes/coupon-routes');
-const giveawayRoutes = require('./routes/giveaway-routes');
+
 
 // Gắn Routes
 app.use('/api', authRoutes); // /api/login, /api/register...
@@ -23,7 +23,7 @@ app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/coupons', couponRoutes);
-app.use('/api/giveaway', giveawayRoutes);
+
 
 
 // Xử lý đóng Server an toàn
