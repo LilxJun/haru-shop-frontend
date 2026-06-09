@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
             loginButton.innerText = 'ĐANG KẾT NỐI SERVER...';
 
             try {
-                const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/login', {
+                const response = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })
@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
             registerButton.innerText = 'ĐANG GỬI DỮ LIỆU...';
 
             try {
-                const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/register', {
+                const response = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, username, password })
@@ -212,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- ICON MẮT ẨN/HIỆN MẬT KHẨU ---
+    // --- ICON MẮT cho trang LOgin ẨN/HIỆN MẬT KHẨU ---
     const togglePasswordBtn = document.getElementById('toggle-password-btn');
     if (togglePasswordBtn) {
         togglePasswordBtn.addEventListener('click', () => {

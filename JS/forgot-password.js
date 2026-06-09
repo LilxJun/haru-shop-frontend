@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btnSendOtp.innerText = 'Đang gửi mã...';
 
             try {
-                const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/forgot-password', {
+                const response = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/forgot-password', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: savedEmail })
@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btnResetPass.innerText = 'Đang xác nhận...';
 
             try {
-                const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/reset-password', {
+                const response = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/reset-password', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: savedEmail, otp: otp, newPassword: newPassword })

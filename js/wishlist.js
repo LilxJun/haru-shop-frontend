@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     let productMap = {};
     try {
-        const res = await fetch('https://haru-shop-backend-production.up.railway.app/api/products');
+        const res = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/products');
         const products = await res.json();
         products.forEach(p => {
             productMap[p.name] = p.id;

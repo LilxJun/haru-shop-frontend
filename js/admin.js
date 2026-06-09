@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tbody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Đang tải dữ liệu...</td></tr>';
 
         try {
-            const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/products');
+            const response = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/products');
             const products = await response.json();
 
             tbody.innerHTML = products.map(p => {
@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // Nhớ xóa chữ admin/ ở giữa đi nhé!
-            const res = await fetch('https://haru-shop-backend-production.up.railway.app/api/products/add-complete', {
+            const res = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/products/add-complete', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newProduct)
@@ -221,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.updateStock = async (id) => {
         const newStock = document.getElementById(`stock-${id}`).value;
         try {
-            const res = await fetch(`https://haru-shop-backend-production.up.railway.app/api/products/admin/${id}/stock`, {
+            const res = await fetch(`https://haru-shop-backend-production-188a.up.railway.app/api/products/admin/${id}/stock`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ stock: newStock })
@@ -238,7 +238,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.setOutOfStock = async (id) => {
         if (confirm("Xác nhận đổi sản phẩm này thành Hết hàng?")) {
             try {
-                const res = await fetch(`https://haru-shop-backend-production.up.railway.app/api/products/admin/${id}/stock`, {
+                const res = await fetch(`https://haru-shop-backend-production-188a.up.railway.app/api/products/admin/${id}/stock`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ stock: 0 })
@@ -253,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.deleteProduct = async (id) => {
         if (confirm("CẢNH BÁO: Bạn có chắc chắn muốn xóa hẳn sản phẩm này khỏi Shop không?")) {
             try {
-                const res = await fetch(`https://haru-shop-backend-production.up.railway.app/api/products/admin/${id}`, {
+                const res = await fetch(`https://haru-shop-backend-production-188a.up.railway.app/api/products/admin/${id}`, {
                     method: 'DELETE'
                 });
                 if (res.ok) {
@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Đang tải đơn hàng...</td></tr>';
 
         try {
-            const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/orders/admin');
+            const response = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/orders/admin');
 
             const textResponse = await response.text();
             let orders;
@@ -358,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     window.updateOrderStatus = async (id, newStatus) => {
         try {
-            const res = await fetch(`https://haru-shop-backend-production.up.railway.app/api/orders/admin/${id}/status`, {
+            const res = await fetch(`https://haru-shop-backend-production-188a.up.railway.app/api/orders/admin/${id}/status`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ status: newStatus })

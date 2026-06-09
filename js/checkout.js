@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function processOrderToServer(orderData, submitBtn) {
         try {
-            const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/orders', {
+            const response = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/orders', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(orderData)
@@ -252,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     async function loadCheckoutCart() {
         try {
-            const response = await fetch(`https://haru-shop-backend-production.up.railway.app/api/cart/${currentUserEmail}`);
+            const response = await fetch(`https://haru-shop-backend-production-188a.up.railway.app/api/cart/${currentUserEmail}`);
             const cartData = await response.json();
             renderCheckoutItems(cartData);
         } catch (error) {
@@ -376,7 +376,7 @@ document.addEventListener('DOMContentLoaded', () => {
             btnApplyDiscount.disabled = true;
 
             try {
-                const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/coupons/check', {
+                const response = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/coupons/check', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ code: code })

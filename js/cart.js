@@ -10,9 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const emptyMessage = document.querySelector('.cart-empty-message');
 
     // ==========================================
-    // 1. MÁY QUÉT EMAIL THÔNG MINH (TRỊ LỖI MẤT TRÍ NHỚ)
-    // ==========================================
-    // ==========================================
     // 1. MÁY QUÉT EMAIL THÔNG MINH (TRỊ LỖI MẤT TRÍ NHỚ) - BẢN NÂNG CẤP
     // ==========================================
     window.getSafeUserEmail = function () {
@@ -101,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/cart', {
+            const response = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/cart', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -134,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const response = await fetch(`https://haru-shop-backend-production.up.railway.app/api/cart/${userEmail}`);
+            const response = await fetch(`https://haru-shop-backend-production-188a.up.railway.app/api/cart/${userEmail}`);
             const cartData = await response.json();
             renderCartUI(cartData);
         } catch (error) {
@@ -144,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function updateQuantityDB(id, newQuantity) {
         try {
-            const response = await fetch(`https://haru-shop-backend-production.up.railway.app/api/cart/${id}`, {
+            const response = await fetch(`https://haru-shop-backend-production-188a.up.railway.app/api/cart/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ quantity: newQuantity })
@@ -158,7 +155,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function removeFromCartDB(id) {
         try {
-            const response = await fetch(`https://haru-shop-backend-production.up.railway.app/api/cart/${id}`, { method: 'DELETE' });
+            const response = await fetch(`https://haru-shop-backend-production-188a.up.railway.app/api/cart/${id}`, { method: 'DELETE' });
             const result = await response.json();
             if (result.success) loadCartFromDB();
         } catch (error) {

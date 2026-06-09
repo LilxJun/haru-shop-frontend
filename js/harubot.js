@@ -1,4 +1,4 @@
-const API = 'https://haru-shop-backend-production.up.railway.app';
+const API = 'https://haru-shop-backend-production-188a.up.railway.app';
 
 const QUICK_REPLIES = [
     'Tư vấn chuột gaming',
@@ -53,7 +53,7 @@ function initHaruBot() {
     });
 
     // Auto resize textarea
-    document.getElementById('hb-input').addEventListener('input', function() {
+    document.getElementById('hb-input').addEventListener('input', function () {
         this.style.height = 'auto';
         this.style.height = Math.min(this.scrollHeight, 80) + 'px';
     });

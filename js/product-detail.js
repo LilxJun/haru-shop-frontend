@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        const res = await fetch(`https://haru-shop-backend-production.up.railway.app/api/products/${productId}`);
+        const res = await fetch(`https://haru-shop-backend-production-188a.up.railway.app/api/products/${productId}`);
         productData = await res.json();
         renderProduct();
     } catch (err) {
@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         quantity: quantity
                     };
 
-                    const response = await fetch('https://haru-shop-backend-production.up.railway.app/api/cart', {
+                    const response = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/cart', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
@@ -369,7 +369,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     async function fetchReviews(id) {
         try {
-            const res = await fetch(`https://haru-shop-backend-production.up.railway.app/api/products/${id}/reviews`);
+            const res = await fetch(`https://haru-shop-backend-production-188a.up.railway.app/api/products/${id}/reviews`);
             const data = await res.json();
 
             if (document.getElementById('avg-rating-text')) document.getElementById('avg-rating-text').innerText = `${data.averageRating}/5`;
@@ -440,7 +440,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             reviewErrorMsg.style.display = 'none';
 
             try {
-                const res = await fetch(`https://haru-shop-backend-production.up.railway.app/api/products/${productId}/reviews`, {
+                const res = await fetch(`https://haru-shop-backend-production-188a.up.railway.app/api/products/${productId}/reviews`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: userEmail, rating: rating, comment: comment })

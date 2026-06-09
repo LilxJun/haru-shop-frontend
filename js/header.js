@@ -249,7 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Gọi Server ngầm, nếu lỗi thì bỏ qua không in ra màn hình
         if (allProducts.length === 0) {
             try {
-                const res = await fetch('https://haru-shop-backend-production.up.railway.app/api/products');
+                const res = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/products');
                 if (res.ok) {
                     const data = await res.json();
                     allProducts = Array.isArray(data) ? data : (data.products || data.data || []);

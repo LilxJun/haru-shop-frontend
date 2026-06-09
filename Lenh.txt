@@ -18,3 +18,11 @@ git commit -m "Fix login redirect to lowercase index.html"
 
 # 3. Phóng lên mây
 git push origin main
+
+git add .
+git commit -m "update cho Haru Shop"
+git push
+
+push lên railway(backend) nhớ cd sever trước
+
+cd ..  //Lùi ra khỏi thư mục cd sever

@@ -29,7 +29,7 @@ async function loadHomepageProducts(gridId, serverSection) {
 
     try {
         // A. GỌI API XUỐNG SERVER (ĐÃ FIX LỖI THIẾU LOCALHOST:3000)
-        const response = await fetch(`https://haru-shop-backend-production.up.railway.app/api/products/homepage-products?section=${serverSection}`);
+        const response = await fetch(`https://haru-shop-backend-production-188a.up.railway.app/api/products/homepage-products?section=${serverSection}`);
         const products = await response.json();
 
         // B. XỬ LÝ KẾT QUẢ

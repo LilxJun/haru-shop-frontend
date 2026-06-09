@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!container || !userEmail) return;
 
         try {
-            const res = await fetch(`https://haru-shop-backend-production.up.railway.app/api/orders/user/${userEmail}`);
+            const res = await fetch(`https://haru-shop-backend-production-188a.up.railway.app/api/orders/user/${userEmail}`);
             const orders = await res.json();
 
             // KỊCH BẢN 1: KHÔNG CÓ ĐƠN HÀNG
