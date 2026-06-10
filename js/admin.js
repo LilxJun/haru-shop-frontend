@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         div.innerHTML = `
             <input type="color" class="color-hex" value="#ffffff" style="height: 38px; width: 50px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px;" title="Chọn mã màu">
             <input type="text" class="color-name" placeholder="Tên màu (VD: White)" required>
-            <input type="text" class="color-img" placeholder="Link ảnh (VD: IMG/trang.png)" required>
+            <input type="text" class="color-img" placeholder="img/TenFile.jpg (VD: img/ATK-F1-Black.jpg)" required>
             <button type="button" class="btn btn-delete" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
         `;
         list.appendChild(div);

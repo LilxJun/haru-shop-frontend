@@ -141,8 +141,8 @@ exports.addCompleteProduct = async (req, res) => {
         const defaultStock = variants && variants.length > 0 ? variants[0].stock : 0;
         const defaultImage = variants && variants.length > 0 ? variants[0].colorImg : null;
 
-        const insertProductSQL = `INSERT INTO products (name, category, price, stock, image) VALUES ($1, $2, $3, $4, $5) RETURNING id`;
-        const productResult = await client.query(insertProductSQL, [name, category, defaultPrice, defaultStock, defaultImage]);
+        const insertProductSQL = `INSERT INTO products (name, category, price, stock, image, description) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`;
+        const productResult = await client.query(insertProductSQL, [name, category, defaultPrice, defaultStock, defaultImage, description || null]);
         const newProductId = productResult.rows[0].id;
 
         if (variants && variants.length > 0) {
