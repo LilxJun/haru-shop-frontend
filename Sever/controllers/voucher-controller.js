@@ -38,3 +38,31 @@ exports.deleteVoucher = async (req, res) => {
         res.status(500).json({ error: 'Lỗi khi xóa voucher' });
     }
 };
+
+
+// Kiểm tra mã giảm giá khi khách hàng áp dụng lúc Thanh toán
+exports.checkVoucher = async (req, res) => {
+    const { code } = req.body;
+    try {
+        // Tìm mã trong database, điều kiện: Phải còn active và Hạn sử dụng phải lớn hơn giờ hiện tại
+        const result = await pool.query(
+            `SELECT discount_percent FROM vouchers 
+             WHERE code = $1 AND is_active = true AND expires_at >= CURRENT_TIMESTAMP`,
+            [code]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(400).json({ success: false, message: 'Mã giảm giá không tồn tại hoặc đã hết hạn!' });
+        }
+
+        // Trả về số % giảm giá cho Frontend tính tiền
+        res.json({
+            success: true,
+            discount_percent: result.rows[0].discount_percent,
+            is_freeship: false
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ success: false, message: 'Lỗi server khi kiểm tra mã!' });
+    }
+};

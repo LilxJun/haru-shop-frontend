@@ -17,6 +17,7 @@ const orderRoutes = require('./routes/order-routes');
 const couponRoutes = require('./routes/coupon-routes');
 const harubotRoutes = require('./routes/harubot-routes');
 const voucherController = require('./controllers/voucher-controller');
+const spinController = require('./controllers/spin-controller');
 
 
 // Gắn Routes
@@ -30,6 +31,9 @@ app.use('/api/harubot', harubotRoutes);
 app.get('/api/vouchers', voucherController.getAllVouchers);
 app.post('/api/vouchers', voucherController.createVoucher);
 app.delete('/api/vouchers/:id', voucherController.deleteVoucher);
+app.post('/api/vouchers/check', voucherController.checkVoucher);
+// API VÒNG QUAY MAY MẮN
+app.post('/api/spin', spinController.playSpin);
 
 
 

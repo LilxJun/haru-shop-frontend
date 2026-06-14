@@ -353,7 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================
-    // 7. XỬ LÝ MÃ GIẢM GIÁ
+    // 7. XỬ LÝ MÃ GIẢM GIÁ (ĐÃ CẬP NHẬT DÙNG VOUCHERS)
     // ==========================================
     const btnApplyDiscount = document.querySelector('.btn-apply-discount');
     const discountInput = document.querySelector('.discount-section input');
@@ -376,7 +376,8 @@ document.addEventListener('DOMContentLoaded', () => {
             btnApplyDiscount.disabled = true;
 
             try {
-                const response = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/coupons/check', {
+                // ĐỔI ĐƯỜNG DẪN TỪ coupons/check SANG vouchers/check
+                const response = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/vouchers/check', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ code: code })
@@ -386,7 +387,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.success) {
                     discountPercent = data.discount_percent;
-                    isFreeship = data.is_freeship;
+                    isFreeship = data.is_freeship || false;
                     appliedCouponCode = code;
 
                     if (isFreeship) {
@@ -395,7 +396,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         showLocalToast(`Áp dụng thành công! Mã giảm ${discountPercent}% tổng đơn hàng.`, true);
                     }
                 } else {
-                    showLocalToast(data.message, false);
+                    showLocalToast(data.message || data.error, false);
                     discountPercent = 0;
                     isFreeship = false;
                     appliedCouponCode = null;
