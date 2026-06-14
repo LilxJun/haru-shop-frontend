@@ -34,6 +34,7 @@ app.delete('/api/vouchers/:id', voucherController.deleteVoucher);
 app.post('/api/vouchers/check', voucherController.checkVoucher);
 // API VÒNG QUAY MAY MẮN
 app.post('/api/spin', spinController.playSpin);
+app.get('/api/vouchers/user/:email', spinController.getUserVouchers);
 
 
 

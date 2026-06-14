@@ -37,7 +37,11 @@ exports.playSpin = async (req, res) => {
         await pool.query('BEGIN'); // Bắt đầu Transaction
 
         // 3. Lưu lịch sử đã quay
-        await pool.query('INSERT INTO spin_history (email, prize_name) VALUES ($1, $2)', [email, prize.name]);
+        // Lưu lịch sử đã quay
+        await pool.query(
+            'INSERT INTO spin_history (email, prize_name, voucher_code) VALUES ($1, $2, $3)',
+            [email, prize.name, generatedCode]
+        );
 
         // 4. Nếu trúng Voucher, tạo mã và lưu vào bảng vouchers
         if (prize.type === 'voucher') {
@@ -67,5 +71,20 @@ exports.playSpin = async (req, res) => {
         await pool.query('ROLLBACK');
         console.error(err);
         res.status(500).json({ error: 'Lỗi máy chủ, vui lòng thử lại sau!' });
+    }
+};
+
+// Lấy lịch sử Voucher của User
+exports.getUserVouchers = async (req, res) => {
+    const { email } = req.params;
+    try {
+        const result = await pool.query(
+            'SELECT prize_name, voucher_code, created_at FROM spin_history WHERE email = $1 ORDER BY created_at DESC',
+            [email]
+        );
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Lỗi lấy danh sách voucher' });
     }
 };

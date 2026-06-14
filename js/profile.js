@@ -109,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (item.selected_color && item.selected_color !== 'Mặc định') variant.push(item.selected_color);
                     let variantStr = variant.length > 0 ? `<span style="color:#6366f1;">(${variant.join(' - ')})</span>` : '';
 
-                    // BẮT ẢNH THEO MÀU
                     let finalImage = item.product_image;
                     if (item.product_colors && item.selected_color && item.selected_color !== 'Mặc định') {
                         try {
@@ -122,7 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     let imgSrc = finalImage && finalImage.startsWith('../') ? finalImage : '../' + (finalImage || 'IMG/default.png');
 
-                    // FIX STYLE ẢNH Ở DÒNG NÀY (Bỏ border, bỏ nền, chỉnh object-fit)
                     html += `
                     <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 15px;">
                         <img src="${imgSrc}" style="width: 80px; height: 80px; object-fit: contain; background: transparent; border: none; padding: 0;">
@@ -146,5 +144,60 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ==========================================
+    // 5. LOAD DANH SÁCH VOUCHER (TỪ HÒM CS:GO)
+    // ==========================================
+    async function loadMyVouchers() {
+        const container = document.getElementById('voucher-list-container');
+        if (!container || !userEmail) return;
+
+        try {
+            const res = await fetch(`https://haru-shop-backend-production-188a.up.railway.app/api/vouchers/user/${userEmail}`);
+            const data = await res.json();
+
+            if (data.length === 0) {
+                container.innerHTML = `
+                    <div style="background: #f8fafc; border: 1px dashed #cbd5e1; padding: 20px; border-radius: 8px; text-align: center;">
+                        <p style="color: #64748b; margin-bottom: 10px;">Bạn chưa có mã giảm giá nào.</p>
+                        <a href="spin.html" style="display: inline-block; background: #0b1120; color: #fff; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-weight: bold;">
+                            <i class="fas fa-box-open"></i> Đến Mở Hòm Tiếp Tế Ngay
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = '<div style="display: flex; flex-wrap: wrap; gap: 15px;">';
+            data.forEach(item => {
+                if (item.voucher_code) {
+                    html += `
+                        <div style="background: #fff; border: 2px dashed #e74c3c; padding: 20px; border-radius: 12px; min-width: 250px; flex: 1; position: relative; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                            <div style="position: absolute; top: 10px; right: -25px; background: #e74c3c; color: white; padding: 5px 30px; font-size: 11px; font-weight: bold; transform: rotate(45deg);">CHƯA DÙNG</div>
+                            <div style="font-weight: bold; color: #475569; margin-bottom: 8px; font-size: 14px;">Mã từ sự kiện mở hòm</div>
+                            <div style="font-size: 24px; font-weight: 900; color: #e74c3c; letter-spacing: 2px; margin-bottom: 5px;">${item.voucher_code}</div>
+                            <div style="font-size: 16px; font-weight: bold; color: #1e293b; margin-bottom: 10px;">${item.prize_name}</div>
+                            <div style="font-size: 12px; color: #64748b;">* Nhập mã này tại bước Thanh toán</div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 20px; border-radius: 12px; min-width: 250px; flex: 1;">
+                            <div style="color: #64748b; margin-bottom: 5px; font-size: 14px;">Lịch sử tham gia:</div>
+                            <div style="font-weight: bold; color: #1e293b; font-size: 16px;">${item.prize_name}</div>
+                        </div>
+                    `;
+                }
+            });
+            html += '</div>';
+            container.innerHTML = html;
+
+        } catch (error) {
+            console.error(error);
+            container.innerHTML = '<p style="color: #ef4444;">Lỗi kết nối! Không thể tải kho Voucher.</p>';
+        }
+    }
+
+    // Khởi chạy các hàm
     loadUserOrders();
+    loadMyVouchers(); // Gọi thêm hàm tải Voucher ở đây
 });
