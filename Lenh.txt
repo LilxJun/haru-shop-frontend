@@ -23,6 +23,6 @@ git add .
 git commit -m "update cho Haru Shop"
 git push
 
-push lên railway(backend) nhớ cd sever trước
+push lên railway(backend) nhớ cd sever trướcH
 
 cd ..  //Lùi ra khỏi thư mục cd sever

@@ -118,10 +118,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const basePrice = document.getElementById('add-price').value;
         const baseStock = document.getElementById('add-stock').value;
 
-        // 3C. TẠO MẢNG BIẾN THỂ (VARIANTS) - ĐỂ PHÙ HỢP VỚI CẤU TRÚC DATABASE MỚI
+        // 3C. TẠO MẢNG BIẾN THỂ (VARIANTS)
         let variantsList = [];
         colorsArray.forEach(color => {
-            // Nếu sản phẩm có Model (ví dụ: Pro, Max)
             if (modelsArray.length > 0) {
                 modelsArray.forEach(modelName => {
                     variantsList.push({
@@ -129,12 +128,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         colorName: color.name,
                         colorHex: color.hex,
                         colorImg: color.image,
-                        price: basePrice, // Admin có thể set giá riêng trong tương lai, giờ dùng giá chung
+                        price: basePrice,
                         stock: baseStock
                     });
                 });
             } else {
-                // Nếu sản phẩm không có Model, chỉ lưu màu sắc
                 variantsList.push({
                     modelName: null,
                     colorName: color.name,
@@ -160,17 +158,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // 3E. Lấy dữ liệu Mô tả
         const descriptionValue = document.getElementById('add-description').value.trim();
 
-        // 3F. Đóng gói sản phẩm mới (Chuẩn JSON cho Backend)
+        // 3F. Đóng gói sản phẩm mới
         const newProduct = {
             name: document.getElementById('add-name').value,
             category: document.getElementById('add-category').value,
             description: descriptionValue ? descriptionValue : null,
-            variants: variantsList, // Gửi mảng variants đã được xử lý
-            specs: specsArray.length > 0 ? specsArray : null // Đổi thành Array thay vì Object để dễ loop bên Backend
+            variants: variantsList,
+            specs: specsArray.length > 0 ? specsArray : null
         };
 
         try {
-            // Nhớ xóa chữ admin/ ở giữa đi nhé!
             const res = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/products/add-complete', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -181,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert("Thêm sản phẩm thành công!");
                 document.getElementById('add-form').reset();
 
-                // Khôi phục lại 1 ô nhập màu trống
+                // Khôi phục form trống
                 document.getElementById('color-list').innerHTML = `
                     <div class="color-item" style="display: flex; gap: 10px; margin-bottom: 10px;">
                         <input type="color" class="color-hex" value="#000000" style="height: 38px; width: 50px; cursor: pointer; border: 1px solid #ccc; border-radius: 4px;" title="Chọn mã màu">
@@ -189,23 +186,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         <input type="text" class="color-img" placeholder="img/TenFile.jpg (VD: img/ATK-F1-Black.jpg)" required>
                         <button type="button" class="btn btn-delete" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
                     </div>`;
-
-                // Khôi phục lại 1 ô nhập model trống
                 document.getElementById('model-list').innerHTML = `
                     <div class="model-item" style="display: flex; gap: 10px; margin-bottom: 10px;">
                         <input type="text" class="model-name" placeholder="Tên model (VD: Ultimate, Pro Max...)">
                         <button type="button" class="btn btn-delete" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
                     </div>`;
-
-                // Khôi phục lại 1 ô nhập Specs trống
                 document.getElementById('spec-list').innerHTML = `
                     <div class="spec-item" style="display: flex; gap: 15px; margin-bottom: 15px; align-items: center;">
                         <input type="text" class="spec-label" placeholder="Tên thông số (VD: Cảm biến)">
                         <input type="text" class="spec-value" placeholder="Giá trị (VD: PAW 3950HS)">
                         <button type="button" class="btn btn-delete" onclick="this.parentElement.remove()"><i class="fas fa-trash"></i></button>
                     </div>`;
-
-                // Xóa trắng ô nhập mô tả
                 document.getElementById('add-description').value = '';
 
                 loadAdminProducts();
@@ -217,7 +208,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 4. CÁC HÀM XỬ LÝ TRONG BẢNG (GẮN VÀO WINDOW) ---
+    // --- 4. CÁC HÀM XỬ LÝ TRONG BẢNG SẢN PHẨM ---
     window.updateStock = async (id) => {
         const newStock = document.getElementById(`stock-${id}`).value;
         try {
@@ -266,7 +257,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-
     // ==========================================
     // 5. TẢI VÀ HIỂN THỊ DANH SÁCH ĐƠN HÀNG
     // ==========================================
@@ -277,13 +267,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const response = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/orders/admin');
-
             const textResponse = await response.text();
             let orders;
             try {
                 orders = JSON.parse(textResponse);
             } catch (e) {
-                console.error("Server trả về lỗi không phải JSON:", textResponse);
                 tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: red;">Lỗi Server: Không trả về dữ liệu chuẩn.</td></tr>';
                 return;
             }
@@ -300,7 +288,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             tbody.innerHTML = orders.map(o => {
                 const itemsList = Array.isArray(o.items) ? o.items : [];
-
                 const itemsHtml = itemsList.map(item => {
                     let model = (item.selected_model && item.selected_model !== 'Mặc định') ? item.selected_model : '';
                     let color = (item.selected_color && item.selected_color !== 'Mặc định') ? item.selected_color : '';
@@ -364,7 +351,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 body: JSON.stringify({ status: newStatus })
             });
             if (res.ok) {
-                // Tải lại bảng ngay lập tức để cập nhật huy hiệu màu
                 loadAdminOrders();
             } else {
                 alert("Cập nhật thất bại!");
@@ -374,11 +360,104 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // GỌI HÀM NÀY LÚC LOAD TRANG ĐỂ HIỆN BẢNG
+    // ==========================================
+    // 7. QUẢN LÝ VOUCHER (MÃ GIẢM GIÁ)
+    // ==========================================
+    async function loadVouchers() {
+        const tbody = document.getElementById('voucher-table-body');
+        if (!tbody) return;
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Đang tải dữ liệu...</td></tr>';
+
+        try {
+            const res = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/vouchers');
+            const data = await res.json();
+
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666;">Chưa có mã giảm giá nào.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map(v => {
+                const date = new Date(v.expires_at).toLocaleDateString('vi-VN');
+                const isExpired = new Date(v.expires_at) < new Date();
+                const status = isExpired ? '<span style="color:#ef4444; font-weight:bold;">Hết hạn</span>' : '<span style="color:#10b981; font-weight:bold;">Còn hạn</span>';
+
+                return `
+                    <tr>
+                        <td><strong>${v.code}</strong></td>
+                        <td style="color: #ef4444; font-weight: bold;">${v.discount_percent}%</td>
+                        <td>${date}</td>
+                        <td>${status}</td>
+                        <td>
+                            <button onclick="deleteVoucher(${v.id})" class="btn btn-delete" style="padding: 6px 12px;"><i class="fas fa-trash"></i> Xóa</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        } catch (err) {
+            console.error(err);
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">Lỗi tải dữ liệu voucher!</td></tr>';
+        }
+    }
+
+    // Hàm gắn vào window để gọi từ nút HTML
+    window.addVoucher = async () => {
+        const code = document.getElementById('v-code').value.trim();
+        const discount_percent = document.getElementById('v-discount').value;
+        const expires_at = document.getElementById('v-date').value;
+
+        if (!code || !discount_percent || !expires_at) {
+            return alert("Vui lòng điền đủ thông tin!");
+        }
+
+        try {
+            const res = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/vouchers', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code, discount_percent, expires_at })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                alert("Thêm mã giảm giá thành công!");
+                // Xóa trắng form nhập
+                document.getElementById('v-code').value = '';
+                document.getElementById('v-discount').value = '';
+                document.getElementById('v-date').value = '';
+                loadVouchers(); // Render lại bảng
+            } else {
+                alert(data.error || "Thêm thất bại!");
+            }
+        } catch (err) {
+            alert("Lỗi kết nối server!");
+        }
+    };
+
+    window.deleteVoucher = async (id) => {
+        if (!confirm("Sếp có chắc chắn muốn xóa mã này không?")) return;
+
+        try {
+            const res = await fetch(`https://haru-shop-backend-production-188a.up.railway.app/api/vouchers/${id}`, {
+                method: 'DELETE'
+            });
+            if (res.ok) {
+                alert("Đã xóa mã giảm giá!");
+                loadVouchers();
+            } else {
+                alert("Xóa thất bại!");
+            }
+        } catch (err) {
+            alert("Lỗi kết nối server!");
+        }
+    };
+
+    // Gọi các hàm tải dữ liệu ngay khi vào trang Admin
+    loadAdminProducts();
     loadAdminOrders();
+    loadVouchers();
 
     // ==========================================
-    // 7. LOGIC CHUYỂN TAB (DASHBOARD MENU)
+    // 8. LOGIC CHUYỂN TAB (DASHBOARD MENU)
     // ==========================================
     const menuItems = document.querySelectorAll('.menu-item');
     const tabPanes = document.querySelectorAll('.tab-pane');
@@ -402,5 +481,4 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    loadAdminProducts();
 });

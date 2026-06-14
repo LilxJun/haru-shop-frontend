@@ -21,6 +21,9 @@
                 <li class="menu-item" data-target="tab-orders">
                     <i class="fas fa-shopping-bag"></i> Quản lý Đơn hàng
                 </li>
+                <li class="menu-item" data-target="tab-vouchers">
+                    <i class="fas fa-ticket-alt"></i> Quản lý Voucher
+                </li>
                 <li style="margin-top: 50px;">
                     <a href="index.html"><i class="fas fa-arrow-left"></i> Về trang mua sắm</a>
                 </li>
@@ -152,6 +155,52 @@
                         <tbody id="admin-orders-list">
                         </tbody>
                     </table>
+                </div>
+            </div>
+
+            <div id="tab-vouchers" class="tab-pane">
+                <div class="admin-container">
+                    <h2 style="margin-top: 0; color: #10b981;"><i class="fas fa-ticket-alt"></i> Quản lý Voucher (Mã
+                        giảm giá)</h2>
+
+                    <form class="add-product-form" id="add-voucher-form"
+                        style="margin-bottom: 40px; border-bottom: 2px dashed #ddd; padding-bottom: 30px;">
+                        <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap;">
+                            <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+                                <label>Mã Code (VD: HARU20) *</label>
+                                <input type="text" id="v-code" required placeholder="Nhập mã viết hoa không dấu">
+                            </div>
+                            <div class="form-group" style="flex: 1; min-width: 150px; margin-bottom: 0;">
+                                <label>% Giảm giá *</label>
+                                <input type="number" id="v-discount" required placeholder="VD: 15" min="1" max="100">
+                            </div>
+                            <div class="form-group" style="flex: 1; min-width: 200px; margin-bottom: 0;">
+                                <label>Hạn sử dụng *</label>
+                                <input type="date" id="v-date" required>
+                            </div>
+                            <button type="button" onclick="addVoucher()" class="btn-add"
+                                style="margin-top: 0; padding: 12px 25px; white-space: nowrap;">
+                                <i class="fas fa-plus"></i> THÊM MÃ
+                            </button>
+                        </div>
+                    </form>
+
+                    <h2>Danh Sách Mã Giảm Giá Đang Hoạt Động</h2>
+                    <div style="overflow-x: auto;">
+                        <table id="admin-vouchers-table" style="width: 100%; min-width: 800px;">
+                            <thead>
+                                <tr>
+                                    <th>Mã Code</th>
+                                    <th>Mức Giảm</th>
+                                    <th>Hạn Sử Dụng</th>
+                                    <th>Trạng Thái</th>
+                                    <th>Hành Động</th>
+                                </tr>
+                            </thead>
+                            <tbody id="voucher-table-body">
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
