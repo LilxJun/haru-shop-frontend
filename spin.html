@@ -4,235 +4,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mở Hộp May Mắn - Haru</title>
+    <title>Mở Hòm May Mắn - Haru Shop</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/header-footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="css/harubot.css">
     <style>
-        .loot-page-main {
+        .csgo-page-main {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             min-height: 85vh;
-            background-color: #0b1120;
-            background-image:
-                radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.1) 0%, rgba(11, 17, 32, 1) 70%),
-                linear-gradient(0deg, rgba(11, 17, 32, 1) 0%, rgba(11, 17, 32, 0) 100%);
+            background-color: #121212;
+            background-image: radial-gradient(circle, #2a2a35 0%, #121212 100%);
             padding: 40px 20px;
-            overflow: hidden;
-            position: relative;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* Lưới nền phong cách Cyberpunk/Gaming */
-        .grid-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-size: 40px 40px;
-            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        .loot-container {
-            position: relative;
-            z-index: 10;
-            text-align: center;
-            max-width: 600px;
-            width: 100%;
-        }
-
-        .loot-title {
-            color: #38bdf8;
+        .csgo-title {
+            color: #ffcc00;
             font-size: 36px;
             font-weight: 900;
             text-transform: uppercase;
-            letter-spacing: 4px;
+            letter-spacing: 3px;
             margin-bottom: 10px;
-            text-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
         }
 
-        .loot-desc {
+        .csgo-desc {
             color: #94a3b8;
-            font-size: 16px;
-            margin-bottom: 50px;
+            margin-bottom: 40px;
+            font-style: italic;
         }
 
-        /* Hộp quà Cyber */
-        .box-wrapper {
+        /* KHUNG CHỨA HÒM CSGO */
+        .csgo-container {
+            width: 100%;
+            max-width: 900px;
+            height: 180px;
+            background: #1e1e26;
+            border: 2px solid #333;
+            border-radius: 8px;
             position: relative;
-            height: 250px;
+            overflow: hidden;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.8);
+            margin-bottom: 30px;
+        }
+
+        /* VẠCH VÀNG Ở GIỮA (KIM CHỈ NAM) */
+        .csgo-center-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            background: #ffcc00;
+            z-index: 10;
+            transform: translateX(-50%);
+            box-shadow: 0 0 10px #ffcc00;
+        }
+
+        .csgo-arrow-up {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            z-index: 11;
+            transform: translateX(-50%);
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 15px solid #ffcc00;
+        }
+
+        .csgo-arrow-down {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            z-index: 11;
+            transform: translateX(-50%);
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 15px solid #ffcc00;
+        }
+
+        /* DẢI TRƯỢT CHỨA VẬT PHẨM */
+        .csgo-tracker {
             display: flex;
+            height: 100%;
+            width: max-content;
+            transform: translateX(0);
+            /* Transition này quyết định độ mượt chậm dần của vòng quay (thời gian 6s) */
+            transition: transform 6s cubic-bezier(0.15, 0.9, 0.25, 1);
+        }
+
+        /* TỪNG Ô VẬT PHẨM */
+        .csgo-item {
+            width: 150px;
+            height: 160px;
+            margin: 10px 5px;
+            background: #2a2a35;
+            display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            margin-bottom: 30px;
+            border-radius: 4px;
+            border-bottom: 6px solid #4b69ff;
+            /* Màu mặc định (Xanh) */
+            box-sizing: border-box;
+            text-align: center;
+            padding: 10px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .csgo-item img {
+            width: 60px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2));
+        }
+
+        .csgo-item span {
+            font-size: 14px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .btn-open {
+            background: #ffcc00;
+            color: #121212;
+            border: none;
+            padding: 15px 50px;
+            font-size: 20px;
+            font-weight: 900;
+            text-transform: uppercase;
+            border-radius: 4px;
             cursor: pointer;
-            perspective: 1000px;
+            transition: 0.3s;
+            box-shadow: 0 0 15px rgba(255, 204, 0, 0.4);
         }
 
-        .cyber-box {
-            font-size: 120px;
-            color: #cbd5e1;
-            filter: drop-shadow(0 0 30px rgba(56, 189, 248, 0.3));
-            transition: all 0.3s ease;
-            animation: float 3s ease-in-out infinite;
+        .btn-open:hover {
+            background: #ffd633;
+            transform: scale(1.05);
         }
 
-        .box-wrapper:hover .cyber-box {
-            color: #38bdf8;
-            filter: drop-shadow(0 0 50px rgba(56, 189, 248, 0.8));
-            transform: scale(1.1);
+        .btn-open:disabled {
+            background: #444;
+            color: #888;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
-        /* Hiệu ứng Rung lắc khi đang mở */
-        .shaking .cyber-box {
-            animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both infinite;
-            color: #f59e0b;
-            filter: drop-shadow(0 0 60px rgba(245, 158, 11, 0.8));
+        /* BẢNG KẾT QUẢ HIỆN LÊN SAU KHI QUAY XONG */
+        .result-panel {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: rgba(20, 20, 30, 0.95);
+            border: 2px solid #ffcc00;
+            padding: 40px;
+            border-radius: 12px;
+            text-align: center;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.4s ease;
         }
 
-        /* Hiệu ứng lóe sáng nổ hộp */
-        .flash-overlay {
+        .result-panel.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .result-panel h3 {
+            margin-top: 0;
+            color: #ffcc00;
+            font-size: 28px;
+        }
+
+        .prize-code {
+            display: inline-block;
+            background: #000;
+            padding: 10px 20px;
+            border: 1px dashed #ffcc00;
+            color: #fff;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 3px;
+            margin: 15px 0;
+        }
+
+        .overlay-bg {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: #fff;
-            z-index: 9999;
-            pointer-events: none;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 99;
             opacity: 0;
-            display: none;
+            visibility: hidden;
+            transition: 0.4s;
         }
 
-        .flash-active {
-            display: block;
-            animation: flashBang 1s ease-out forwards;
-        }
-
-        @keyframes float {
-            0% {
-                transform: translateY(0px);
-            }
-
-            50% {
-                transform: translateY(-20px);
-            }
-
-            100% {
-                transform: translateY(0px);
-            }
-        }
-
-        @keyframes shake {
-
-            10%,
-            90% {
-                transform: translate3d(-2px, 0, 0) rotate(-5deg);
-            }
-
-            20%,
-            80% {
-                transform: translate3d(4px, 0, 0) rotate(5deg);
-            }
-
-            30%,
-            50%,
-            70% {
-                transform: translate3d(-6px, 0, 0) rotate(-5deg);
-            }
-
-            40%,
-            60% {
-                transform: translate3d(6px, 0, 0) rotate(5deg);
-            }
-        }
-
-        @keyframes flashBang {
-            0% {
-                opacity: 1;
-            }
-
-            100% {
-                opacity: 0;
-            }
-        }
-
-        /* Kết quả */
-        .result-panel {
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid #334155;
-            padding: 30px;
-            border-radius: 16px;
-            backdrop-filter: blur(10px);
-            display: none;
-            transform: scale(0.8);
-            opacity: 0;
-            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .result-panel.show {
-            display: block;
-            transform: scale(1);
+        .overlay-bg.show {
             opacity: 1;
-        }
-
-        .prize-name {
-            font-size: 28px;
-            font-weight: bold;
-            color: #10b981;
-            margin: 15px 0;
-        }
-
-        .prize-code {
-            display: inline-block;
-            background: #020617;
-            border: 1px dashed #38bdf8;
-            padding: 12px 25px;
-            font-size: 26px;
-            font-weight: 900;
-            letter-spacing: 4px;
-            color: #38bdf8;
-            border-radius: 8px;
-            box-shadow: inset 0 0 15px rgba(56, 189, 248, 0.2);
-        }
-
-        .btn-open {
-            background: transparent;
-            color: #38bdf8;
-            border: 2px solid #38bdf8;
-            padding: 15px 40px;
-            font-size: 18px;
-            font-weight: bold;
-            text-transform: uppercase;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
-            letter-spacing: 2px;
-        }
-
-        .btn-open:hover {
-            background: #38bdf8;
-            color: #0b1120;
-            box-shadow: 0 0 30px rgba(56, 189, 248, 0.6);
-        }
-
-        .btn-open:disabled {
-            border-color: #475569;
-            color: #475569;
-            background: transparent;
-            cursor: not-allowed;
-            box-shadow: none;
+            visibility: visible;
         }
     </style>
 </head>
 
 <body class="homepage">
+    <!-- HEADER -->
     <header class="main-header">
         <div class="header-left">
             <div class="logo"><a href="index.html">Haru</a></div>
@@ -247,7 +234,7 @@
         </nav>
         <div class="header-right">
             <div class="Icon-NguoiDung">
-                <a href="#" class="header-icon-link" id="header-search-icon"><i class="fas fa-search"></i></a>
+                <a href="#" class="header-icon-link"><i class="fas fa-search"></i></a>
                 <div class="user-menu-container" id="user-menu-logged-out">
                     <a href="login.html" class="header-icon-link"><i class="fas fa-user"></i></a>
                 </div>
@@ -258,54 +245,73 @@
                         <a href="#" class="dropdown-item" id="logout-button">Đăng xuất</a>
                     </div>
                 </div>
-                <a href="wishlist.html" class="header-icon-link"><i class="fas fa-heart"></i></a>
-                <a href="cart.html" class="header-icon-link" id="header-cart-icon"><i
-                        class="fas fa-shopping-cart"></i></a>
+                <a href="cart.html" class="header-icon-link"><i class="fas fa-shopping-cart"></i></a>
             </div>
         </div>
     </header>
 
-    <main class="loot-page-main">
-        <div class="grid-bg"></div>
-        <div class="flash-overlay" id="flash-screen"></div>
+    <!-- GIAO DIỆN HÒM CSGO -->
+    <main class="csgo-page-main">
+        <h2 class="csgo-title">MỞ HÒM TIẾP TẾ</h2>
+        <p class="csgo-desc">Mỗi tài khoản được mở 1 hòm duy nhất. Độ hiếm vật phẩm phân loại theo màu sắc (Xanh > Tím >
+            Hồng > Đỏ).</p>
 
-        <div class="loot-container">
-            <h2 class="loot-title">HỘP TIẾP TẾ</h2>
-            <p class="loot-desc">Hệ thống phát hiện một rương chứa mã Voucher chưa được giải mã.<br>Mỗi tài khoản chỉ
-                được quyền truy cập 1 lần duy nhất.</p>
+        <div class="csgo-container" id="csgo-container">
+            <div class="csgo-arrow-down"></div>
+            <div class="csgo-center-line"></div>
+            <div class="csgo-arrow-up"></div>
 
-            <div class="box-wrapper" id="box-wrapper" onclick="openLootBox()">
-                <i class="fas fa-cube cyber-box" id="box-icon"></i>
-            </div>
-
-            <button id="btn-open" class="btn-open" onclick="openLootBox()">Bắt đầu giải mã</button>
-
-            <div class="result-panel" id="result-panel">
-                <div id="result-content"></div>
+            <div class="csgo-tracker" id="csgo-tracker">
+                <!-- Javascript sẽ tự động nhồi 80 cái card quà tặng vào đây -->
             </div>
         </div>
+
+        <button id="btn-open" class="btn-open" onclick="openCase()">MỞ HÒM NGAY</button>
     </main>
 
-    <footer class="main-footer-content" style="margin-top: 0;">
-        <div class="footer-top-line"></div>
-        <div class="footer-columns-wrapper">
-            <div class="footer-col contact-col">
-                <h4 class="col-title">HARU SHOP</h4>
-                <p class="address-line">Address: 411/67/51 Lê Đức Thọ, Phường 16, Gò Vấp, TP.HCM</p>
-                <p class="contact-line">Email: linn70180@gmail.com</p>
-            </div>
-        </div>
-        <div class="footer-bottom-wrapper">
-            <p class="copyright">HARU SHOP © 2026</p>
-        </div>
-    </footer>
+    <!-- POPUP KẾT QUẢ -->
+    <div class="overlay-bg" id="overlay"></div>
+    <div class="result-panel" id="result-panel">
+        <div id="result-content"></div>
+        <button onclick="closeModal()" class="btn-open"
+            style="font-size: 14px; padding: 10px 20px; margin-top: 20px;">Đóng</button>
+    </div>
 
+    <!-- SCRIPTS -->
     <script src="js/header.js"></script>
 
     <script>
-        async function openLootBox() {
+        const tracker = document.getElementById('csgo-tracker');
+        const container = document.getElementById('csgo-container');
+
+        // Data giả lập để vẽ dải trượt (Giống Skin súng)
+        const prizePool = [
+            { name: 'Voucher giảm 20%', color: '#eb4b4b', icon: 'fas fa-ticket-alt' }, // Covert (Đỏ) - Cực hiếm
+            { name: 'Voucher giảm 10%', color: '#d32ce6', icon: 'fas fa-tags' },       // Classified (Hồng) - Hiếm
+            { name: 'Voucher giảm 5%', color: '#8847ff', icon: 'fas fa-tag' },         // Restricted (Tím) - Khá
+            { name: 'Chúc bạn may mắn lần sau', color: '#4b69ff', icon: 'far fa-sad-tear' } // Mil-Spec (Xanh) - Phổ biến
+        ];
+
+        // 1. HÀM VẼ DẢI TRƯỢT 80 Ô (TẠO ẢO ẢNH DÀI VÔ TẬN)
+        function initTracker() {
+            tracker.innerHTML = '';
+            for (let i = 0; i < 80; i++) {
+                // Random ra màu giả để làm mồi
+                let randomPrize = prizePool[Math.floor(Math.random() * prizePool.length)];
+                tracker.innerHTML += `
+                    <div class="csgo-item" style="border-bottom-color: ${randomPrize.color}">
+                        <i class="${randomPrize.icon}" style="font-size: 30px; color: ${randomPrize.color}; margin-bottom: 10px;"></i>
+                        <span>${randomPrize.name}</span>
+                    </div>
+                `;
+            }
+        }
+        initTracker();
+
+        // 2. HÀM QUAY XỔ SỐ
+        async function openCase() {
             const btn = document.getElementById('btn-open');
-            if (btn.disabled) return; // Đang mở rồi thì không cho bấm nữa
+            if (btn.disabled) return;
 
             let email = null;
             try {
@@ -316,24 +322,16 @@
             }
 
             if (!email) {
-                alert("Yêu cầu quyền truy cập: Vui lòng đăng nhập hệ thống!");
+                alert("Bạn phải đăng nhập để nhận chìa khóa mở hòm!");
                 window.location.href = 'login.html';
                 return;
             }
 
-            const boxWrapper = document.getElementById('box-wrapper');
-            const boxIcon = document.getElementById('box-icon');
-            const resultPanel = document.getElementById('result-panel');
-            const flashScreen = document.getElementById('flash-screen');
-            const resultContent = document.getElementById('result-content');
-
-            // Trạng thái đang xử lý
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> ĐANG GIẢI MÃ...';
-            boxWrapper.classList.add('shaking'); // Thêm hiệu ứng rung lắc mạnh
+            btn.innerHTML = 'ĐANG MỞ KHÓA...';
 
             try {
-                // Gọi API
+                // GỌI API ĐỂ BIẾT TRƯỚC KẾT QUẢ TỪ BACKEND
                 const res = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/spin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -341,52 +339,79 @@
                 });
                 const data = await res.json();
 
-                // Tạo kịch bản hồi hộp (đợi 2.5 giây giả vờ đang decrypt)
+                if (!res.ok) {
+                    alert(data.error);
+                    btn.innerHTML = 'MỞ HÒM NGAY';
+                    return;
+                }
+
+                // CHÈN KẾT QUẢ THẬT VÀO VỊ TRÍ SỐ 60 TRÊN DẢI TRƯỢT
+                const targetIndex = 60;
+                let actualColor = '#4b69ff'; // Xanh mặc định
+                let actualIcon = 'far fa-sad-tear';
+
+                if (data.prize.includes('20%')) { actualColor = '#eb4b4b'; actualIcon = 'fas fa-ticket-alt'; }
+                else if (data.prize.includes('10%')) { actualColor = '#d32ce6'; actualIcon = 'fas fa-tags'; }
+                else if (data.prize.includes('5%')) { actualColor = '#8847ff'; actualIcon = 'fas fa-tag'; }
+
+                // Can thiệp DOM để sửa ô số 60 thành quà API trả về
+                const items = tracker.querySelectorAll('.csgo-item');
+                items[targetIndex].style.borderBottomColor = actualColor;
+                items[targetIndex].innerHTML = `
+                    <i class="${actualIcon}" style="font-size: 30px; color: ${actualColor}; margin-bottom: 10px;"></i>
+                    <span>${data.prize}</span>
+                `;
+
+                // TÍNH TOÁN KHOẢNG CÁCH TRƯỢT (TOÁN HỌC)
+                const itemWidth = 160; // 150px width + 10px margin
+                const containerCenter = container.offsetWidth / 2;
+
+                // Random lệch +- 60px để kim không luôn nằm giữa chính xác (tạo cảm giác hồi hộp như thật)
+                const randomOffset = Math.floor(Math.random() * 120) - 60;
+
+                // Công thức: Dịch track sang trái = (Vị trí ô 60) + (Nửa ô 60) - (Nửa khung) + lệch
+                const shiftX = (targetIndex * itemWidth) + (itemWidth / 2) - containerCenter + randomOffset;
+
+                // THỰC THI ANIMATION TRƯỢT
+                tracker.style.transform = `translateX(-${shiftX}px)`;
+
+                // Đợi 6.5s cho animation chạy xong rồi hiện Popup
                 setTimeout(() => {
-                    boxWrapper.classList.remove('shaking'); // Ngừng rung
-                    boxWrapper.style.display = 'none'; // Ẩn hộp
-                    btn.style.display = 'none'; // Ẩn nút
+                    const resultPanel = document.getElementById('result-panel');
+                    const resultContent = document.getElementById('result-content');
+                    const overlay = document.getElementById('overlay');
 
-                    // Kích hoạt hiệu ứng lóe sáng toàn màn hình
-                    flashScreen.classList.add('flash-active');
-
-                    if (!res.ok) {
+                    if (data.code) {
                         resultContent.innerHTML = `
-                            <i class="fas fa-lock" style="font-size: 40px; color: #ef4444; margin-bottom: 15px;"></i>
-                            <h3 style="color: #ef4444; font-size: 24px; margin-bottom: 10px;">TRUY CẬP BỊ TỪ CHỐI</h3>
-                            <p style="color: #94a3b8;">${data.error}</p>
-                            <button onclick="window.location.href='index.html'" class="btn-open" style="margin-top: 20px; font-size: 14px; padding: 10px 20px;">Về trang chủ</button>
-                        `;
-                    } else if (data.code) {
-                        resultContent.innerHTML = `
-                            <div style="color: #38bdf8; font-size: 14px; font-weight: bold; letter-spacing: 2px;">GIẢI MÃ THÀNH CÔNG</div>
-                            <div class="prize-name">${data.prize}</div>
-                            <div class="prize-code">${data.code}</div>
-                            <p style="color: #94a3b8; margin-top: 20px; font-size: 14px;">Lưu trữ mã lệnh này vào bộ nhớ để sử dụng ở khâu Thanh toán.</p>
-                            <button onclick="window.location.href='index.html'" class="btn-open" style="margin-top: 25px; font-size: 14px; padding: 10px 20px;">Xác nhận</button>
+                            <h3>🎉 TRÚNG THƯỞNG 🎉</h3>
+                            <p style="color: ${actualColor}; font-size: 20px; font-weight: bold;">${data.prize}</p>
+                            <span class="prize-code">${data.code}</span>
+                            <p style="color: #94a3b8; font-size: 14px;">Mã đã được lưu vào hệ thống, áp dụng khi Thanh toán.</p>
                         `;
                     } else {
                         resultContent.innerHTML = `
-                            <i class="fas fa-box-open" style="font-size: 40px; color: #475569; margin-bottom: 15px;"></i>
-                            <h3 style="color: #f8fafc; font-size: 24px; margin-bottom: 10px;">HỘP RỖNG</h3>
-                            <p style="color: #94a3b8;">${data.prize}</p>
-                            <button onclick="window.location.href='index.html'" class="btn-open" style="margin-top: 20px; font-size: 14px; padding: 10px 20px;">Đóng</button>
+                            <h3 style="color: #4b69ff;">RẤT TIẾC</h3>
+                            <i class="${actualIcon}" style="font-size: 50px; color: #4b69ff; margin: 15px 0;"></i>
+                            <p style="color: #fff; font-size: 18px;">${data.prize}</p>
                         `;
                     }
 
-                    // Hiện bảng kết quả sau khi flash sáng 1 chút
-                    setTimeout(() => {
-                        resultPanel.classList.add('show');
-                    }, 200);
+                    overlay.classList.add('show');
+                    resultPanel.classList.add('show');
+                    btn.innerHTML = 'ĐÃ MỞ';
 
-                }, 2500);
+                }, 6500);
 
             } catch (err) {
-                boxWrapper.classList.remove('shaking');
                 btn.disabled = false;
-                btn.innerHTML = 'BẮT ĐẦU GIẢI MÃ';
-                alert("Mất kết nối máy chủ! Không thể mở hộp.");
+                btn.innerHTML = 'MỞ HÒM NGAY';
+                alert("Lỗi kết nối API!");
             }
+        }
+
+        function closeModal() {
+            document.getElementById('overlay').classList.remove('show');
+            document.getElementById('result-panel').classList.remove('show');
         }
     </script>
 </body>
