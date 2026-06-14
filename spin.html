@@ -8,16 +8,20 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/header-footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="css/harubot.css">
     <style>
+        /* ==========================================
+           1. CSS HÒM CS:GO
+           ========================================== */
         .csgo-page-main {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 85vh;
+            min-height: 70vh;
             background-color: #121212;
             background-image: radial-gradient(circle, #2a2a35 0%, #121212 100%);
-            padding: 40px 20px;
+            padding: 60px 20px;
             color: #fff;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
@@ -38,7 +42,6 @@
             font-style: italic;
         }
 
-        /* KHUNG CHỨA HÒM CSGO */
         .csgo-container {
             width: 100%;
             max-width: 900px;
@@ -52,7 +55,6 @@
             margin-bottom: 30px;
         }
 
-        /* VẠCH VÀNG Ở GIỮA (KIM CHỈ NAM) */
         .csgo-center-line {
             position: absolute;
             top: 0;
@@ -87,17 +89,14 @@
             border-top: 15px solid #ffcc00;
         }
 
-        /* DẢI TRƯỢT CHỨA VẬT PHẨM */
         .csgo-tracker {
             display: flex;
             height: 100%;
             width: max-content;
             transform: translateX(0);
-            /* Transition này quyết định độ mượt chậm dần của vòng quay (thời gian 6s) */
             transition: transform 6s cubic-bezier(0.15, 0.9, 0.25, 1);
         }
 
-        /* TỪNG Ô VẬT PHẨM */
         .csgo-item {
             width: 150px;
             height: 160px;
@@ -109,15 +108,14 @@
             align-items: center;
             border-radius: 4px;
             border-bottom: 6px solid #4b69ff;
-            /* Màu mặc định (Xanh) */
             box-sizing: border-box;
             text-align: center;
             padding: 10px;
             box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3);
         }
 
-        .csgo-item img {
-            width: 60px;
+        .csgo-item i {
+            font-size: 30px;
             margin-bottom: 10px;
             filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.2));
         }
@@ -219,38 +217,63 @@
 </head>
 
 <body class="homepage">
-    <!-- HEADER -->
+    <!-- ==========================================
+         HEADER (GIỮ NGUYÊN BẢN GỐC CỦA SẾP)
+         ========================================== -->
     <header class="main-header">
         <div class="header-left">
             <div class="logo"><a href="index.html">Haru</a></div>
         </div>
+
         <nav class="header-nav">
             <div class="nav-close-btn"><i class="fas fa-times"></i></div>
             <ul>
                 <li><a href="index.html">TRANG CHỦ</a></li>
                 <li><a href="mice.html">CHUỘT</a></li>
                 <li><a href="keyboard.html">BÀN PHÍM</a></li>
+                <li><a href="headphone.html">TAI NGHE</a></li>
+                <li><a href="accessories.html">ACCESSORIES</a></li>
+                <li class="nav-item-dropdown">
+                    <a href="#">HƯỚNG DẪN <i class="fas fa-chevron-down dropdown-arrow"></i></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="#">Hướng dẫn sử dụng</a></li>
+                        <li><a href="#">Tải phần mềm</a></li>
+                    </ul>
+                </li>
             </ul>
         </nav>
+
         <div class="header-right">
             <div class="Icon-NguoiDung">
-                <a href="#" class="header-icon-link"><i class="fas fa-search"></i></a>
+                <a href="#" class="header-icon-link" id="header-search-icon"><i class="fas fa-search"></i></a>
                 <div class="user-menu-container" id="user-menu-logged-out">
                     <a href="login.html" class="header-icon-link"><i class="fas fa-user"></i></a>
+                    <div class="user-dropdown-menu">
+                        <a href="login.html" class="dropdown-item">Đăng nhập</a>
+                        <a href="register.html" class="dropdown-item">Đăng ký</a>
+                    </div>
                 </div>
                 <div class="user-menu-container" id="user-menu-logged-in" style="display: none;">
                     <a href="profile.html" class="header-icon-link" id="current-username">...</a>
                     <div class="user-dropdown-menu">
-                        <a href="profile.html" class="dropdown-item">Tài khoản</a>
+                        <a href="profile.html" class="dropdown-item">Tài khoản của tôi</a>
                         <a href="#" class="dropdown-item" id="logout-button">Đăng xuất</a>
                     </div>
                 </div>
-                <a href="cart.html" class="header-icon-link"><i class="fas fa-shopping-cart"></i></a>
+                <a href="wishlist.html" class="header-icon-link">
+                    <i class="fas fa-heart"></i><span class="count-badge" id="wishlist-count">0</span>
+                </a>
+                <a href="cart.html" class="header-icon-link" id="header-cart-icon">
+                    <i class="fas fa-shopping-cart"></i><span class="count-badge" id="cart-count">0</span>
+                </a>
             </div>
         </div>
+        <div class="mobile-menu-toggle"><i class="fas fa-bars"></i></div>
     </header>
 
-    <!-- GIAO DIỆN HÒM CSGO -->
+    <!-- ==========================================
+         MAIN CONTENT: HÒM TIẾP TẾ CS:GO
+         ========================================== -->
     <main class="csgo-page-main">
         <h2 class="csgo-title">MỞ HÒM TIẾP TẾ</h2>
         <p class="csgo-desc">Mỗi tài khoản được mở 1 hòm duy nhất. Độ hiếm vật phẩm phân loại theo màu sắc (Xanh > Tím >
@@ -260,9 +283,8 @@
             <div class="csgo-arrow-down"></div>
             <div class="csgo-center-line"></div>
             <div class="csgo-arrow-up"></div>
-
             <div class="csgo-tracker" id="csgo-tracker">
-                <!-- Javascript sẽ tự động nhồi 80 cái card quà tặng vào đây -->
+                <!-- Javascript sinh item vào đây -->
             </div>
         </div>
 
@@ -277,30 +299,146 @@
             style="font-size: 14px; padding: 10px 20px; margin-top: 20px;">Đóng</button>
     </div>
 
+    <!-- ==========================================
+         SEO & FOOTER (GIỮ NGUYÊN BẢN GỐC CỦA SẾP)
+         ========================================== -->
+    <section class="seo-footer-section">
+        <div class="seo-container">
+            <div class="seo-content-block">
+                <h2>Cơ hội nhận Voucher khi mua Gaming Gear tại Haru Shop</h2>
+                <p>Mỗi tài khoản đăng ký tại Haru Shop đều được cấp một lượt mở hòm tiếp tế miễn phí. Đây là cơ hội để
+                    bạn nhận được các mã giảm giá siêu giá trị, áp dụng trực tiếp cho các sản phẩm chuột, bàn phím, tai
+                    nghe cao cấp. Đừng bỏ lỡ!</p>
+            </div>
+        </div>
+    </section>
+
+    <div id="toast-container"></div>
+    <hr style="border: 1px solid black; width: 100%;">
+
+    <footer class="main-footer-content">
+        <div class="footer-top-line"></div>
+        <div class="footer-columns-wrapper">
+            <div class="footer-col subscribe-col">
+                <h4 class="col-title">ĐĂNG KÝ NHẬN TIN</h4>
+                <p>Bạn muốn nhận khuyến mãi đặc biệt? Đăng ký ngay.</p>
+                <div class="subscribe-form">
+                    <input type="email" placeholder="Địa chỉ Email" class="email-input">
+                    <button class="submit-btn">ĐĂNG KÝ</button>
+                </div>
+                <div class="social-icons">
+                    <a href="https://www.facebook.com/woocs.junz" class="social-icon-link"><i
+                            class="fab fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/_woocs.junz_/" class="social-icon-link"><i
+                            class="fab fa-instagram"></i></a>
+                    <a href="http://www.youtube.com/@_woocs.junz_" class="social-icon-link"><i
+                            class="fab fa-youtube"></i></a>
+                    <a href="https://mail.google.com/mail/u/0/#inbox?compose=new" class="social-icon-link"><i
+                            class="far fa-envelope"></i></a>
+                    <a href="https://www.tiktok.com/@_woocs.junz_?is_from_webapp=1&sender_device=pc"
+                        class="social-icon-link"><i class="fab fa-tiktok"></i></a>
+                </div>
+            </div>
+
+            <div class="footer-col support-col">
+                <h4 class="col-title">SUPPORT</h4>
+                <ul>
+                    <li><a href="#">FAQs</a></li>
+                    <li><a href="#">Hướng dẫn sử dụng</a></li>
+                    <li><a href="#">Chính sách vận chuyển</a></li>
+                    <li><a href="#">Chính sách thanh toán</a></li>
+                    <li><a href="#">Chính sách đổi trả</a></li>
+                    <li><a href="#">Bảo hành</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col other-store-col">
+                <h4 class="col-title">OTHER STORE</h4>
+                <ul>
+                    <li><a href="#">Shoppe</a></li>
+                    <li><a href="#">Lazada</a></li>
+                    <li><a href="#">Tiktok Shop</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col contact-col">
+                <h4 class="col-title">JUICEJUN SHOP</h4>
+                <p class="address-line">Address: 411/67/51 LÊ ĐỨC THỌ, PHƯỜNG 16, GÒ VẤP, TP.HCM</p>
+                <p class="contact-line">Email: linn70180@gmail.com</p>
+                <p class="contact-line">Hotline: +84 796 722 41</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom-wrapper">
+            <p class="copyright">JUICEJUN SHOP</p>
+            <div class="payment-methods">
+                <img src="img/CacHinhThucThanhToan.png" alt="Payment Methods" class="payment-image">
+            </div>
+        </div>
+    </footer>
+
     <!-- SCRIPTS -->
     <script src="js/header.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/harubot.js"></script>
 
     <script>
+        // ==========================================
+        // HÀM HIỂN THỊ TOAST ĐẸP (THAY THẾ ALERT)
+        // ==========================================
+        function showHaruToast(message, isSuccess = true) {
+            let container = document.getElementById('haru-toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'haru-toast-container';
+                container.style.cssText = 'position: fixed; top: 80px; right: 20px; z-index: 999999; display: flex; flex-direction: column; gap: 10px; pointer-events: none;';
+                document.body.appendChild(container);
+            }
+
+            const toast = document.createElement('div');
+            const iconHTML = isSuccess
+                ? '<i class="fas fa-check-circle" style="color: #10b981; font-size: 22px;"></i>'
+                : '<i class="fas fa-exclamation-circle" style="color: #ef4444; font-size: 22px;"></i>';
+
+            toast.style.cssText = `
+                background: #ffffff; color: #333333; padding: 12px 20px; border-radius: 6px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px;
+                font-size: 15px; font-weight: 500; font-family: sans-serif;
+                transform: translateX(120%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            `;
+            toast.innerHTML = `${iconHTML} <span>${message}</span>`;
+            container.appendChild(toast);
+
+            requestAnimationFrame(() => {
+                toast.style.transform = 'translateX(0)';
+            });
+
+            setTimeout(() => {
+                toast.style.transform = 'translateX(120%)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ==========================================
+        // LOGIC HÒM CS:GO
+        // ==========================================
         const tracker = document.getElementById('csgo-tracker');
         const container = document.getElementById('csgo-container');
 
-        // Data giả lập để vẽ dải trượt (Giống Skin súng)
         const prizePool = [
-            { name: 'Voucher giảm 20%', color: '#eb4b4b', icon: 'fas fa-ticket-alt' }, // Covert (Đỏ) - Cực hiếm
-            { name: 'Voucher giảm 10%', color: '#d32ce6', icon: 'fas fa-tags' },       // Classified (Hồng) - Hiếm
-            { name: 'Voucher giảm 5%', color: '#8847ff', icon: 'fas fa-tag' },         // Restricted (Tím) - Khá
-            { name: 'Chúc bạn may mắn lần sau', color: '#4b69ff', icon: 'far fa-sad-tear' } // Mil-Spec (Xanh) - Phổ biến
+            { name: 'Voucher giảm 20%', color: '#eb4b4b', icon: 'fas fa-ticket-alt' },
+            { name: 'Voucher giảm 10%', color: '#d32ce6', icon: 'fas fa-tags' },
+            { name: 'Voucher giảm 5%', color: '#8847ff', icon: 'fas fa-tag' },
+            { name: 'Chúc may mắn', color: '#4b69ff', icon: 'far fa-sad-tear' }
         ];
 
-        // 1. HÀM VẼ DẢI TRƯỢT 80 Ô (TẠO ẢO ẢNH DÀI VÔ TẬN)
         function initTracker() {
             tracker.innerHTML = '';
             for (let i = 0; i < 80; i++) {
-                // Random ra màu giả để làm mồi
                 let randomPrize = prizePool[Math.floor(Math.random() * prizePool.length)];
                 tracker.innerHTML += `
                     <div class="csgo-item" style="border-bottom-color: ${randomPrize.color}">
-                        <i class="${randomPrize.icon}" style="font-size: 30px; color: ${randomPrize.color}; margin-bottom: 10px;"></i>
+                        <i class="${randomPrize.icon}" style="color: ${randomPrize.color};"></i>
                         <span>${randomPrize.name}</span>
                     </div>
                 `;
@@ -308,7 +446,6 @@
         }
         initTracker();
 
-        // 2. HÀM QUAY XỔ SỐ
         async function openCase() {
             const btn = document.getElementById('btn-open');
             if (btn.disabled) return;
@@ -322,8 +459,9 @@
             }
 
             if (!email) {
-                alert("Bạn phải đăng nhập để nhận chìa khóa mở hòm!");
-                window.location.href = 'login.html';
+                // DÙNG TOAST THAY CHO ALERT
+                showHaruToast("Vui lòng đăng nhập để nhận chìa khóa mở hòm!", false);
+                setTimeout(() => { window.location.href = 'login.html'; }, 1500);
                 return;
             }
 
@@ -331,7 +469,6 @@
             btn.innerHTML = 'ĐANG MỞ KHÓA...';
 
             try {
-                // GỌI API ĐỂ BIẾT TRƯỚC KẾT QUẢ TỪ BACKEND
                 const res = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/spin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -340,21 +477,20 @@
                 const data = await res.json();
 
                 if (!res.ok) {
-                    alert(data.error);
+                    // DÙNG TOAST THAY CHO ALERT
+                    showHaruToast(data.error, false);
                     btn.innerHTML = 'MỞ HÒM NGAY';
                     return;
                 }
 
-                // CHÈN KẾT QUẢ THẬT VÀO VỊ TRÍ SỐ 60 TRÊN DẢI TRƯỢT
                 const targetIndex = 60;
-                let actualColor = '#4b69ff'; // Xanh mặc định
+                let actualColor = '#4b69ff';
                 let actualIcon = 'far fa-sad-tear';
 
                 if (data.prize.includes('20%')) { actualColor = '#eb4b4b'; actualIcon = 'fas fa-ticket-alt'; }
                 else if (data.prize.includes('10%')) { actualColor = '#d32ce6'; actualIcon = 'fas fa-tags'; }
                 else if (data.prize.includes('5%')) { actualColor = '#8847ff'; actualIcon = 'fas fa-tag'; }
 
-                // Can thiệp DOM để sửa ô số 60 thành quà API trả về
                 const items = tracker.querySelectorAll('.csgo-item');
                 items[targetIndex].style.borderBottomColor = actualColor;
                 items[targetIndex].innerHTML = `
@@ -362,20 +498,13 @@
                     <span>${data.prize}</span>
                 `;
 
-                // TÍNH TOÁN KHOẢNG CÁCH TRƯỢT (TOÁN HỌC)
-                const itemWidth = 160; // 150px width + 10px margin
+                const itemWidth = 160;
                 const containerCenter = container.offsetWidth / 2;
-
-                // Random lệch +- 60px để kim không luôn nằm giữa chính xác (tạo cảm giác hồi hộp như thật)
                 const randomOffset = Math.floor(Math.random() * 120) - 60;
-
-                // Công thức: Dịch track sang trái = (Vị trí ô 60) + (Nửa ô 60) - (Nửa khung) + lệch
                 const shiftX = (targetIndex * itemWidth) + (itemWidth / 2) - containerCenter + randomOffset;
 
-                // THỰC THI ANIMATION TRƯỢT
                 tracker.style.transform = `translateX(-${shiftX}px)`;
 
-                // Đợi 6.5s cho animation chạy xong rồi hiện Popup
                 setTimeout(() => {
                     const resultPanel = document.getElementById('result-panel');
                     const resultContent = document.getElementById('result-content');
@@ -405,7 +534,8 @@
             } catch (err) {
                 btn.disabled = false;
                 btn.innerHTML = 'MỞ HÒM NGAY';
-                alert("Lỗi kết nối API!");
+                // DÙNG TOAST THAY CHO ALERT
+                showHaruToast("Lỗi kết nối máy chủ!", false);
             }
         }
 
