@@ -4,121 +4,230 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vòng quay may mắn - Haru</title>
+    <title>Mở Hộp May Mắn - Haru</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/header-footer.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="css/harubot.css">
     <style>
-        /* CSS riêng cho Vòng quay để không đụng chạm style chung */
-        .spin-page-main {
+        .loot-page-main {
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 80vh;
+            min-height: 85vh;
             background-color: #0b1120;
-            /* Màu nền tối gaming */
-            background-image: radial-gradient(circle at center, #1e293b 0%, #0b1120 100%);
-            padding: 60px 20px;
+            background-image:
+                radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.1) 0%, rgba(11, 17, 32, 1) 70%),
+                linear-gradient(0deg, rgba(11, 17, 32, 1) 0%, rgba(11, 17, 32, 0) 100%);
+            padding: 40px 20px;
+            overflow: hidden;
+            position: relative;
         }
 
-        .spin-box {
-            background: rgba(30, 41, 59, 0.95);
-            padding: 50px 40px;
-            border-radius: 20px;
+        /* Lưới nền phong cách Cyberpunk/Gaming */
+        .grid-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .loot-container {
+            position: relative;
+            z-index: 10;
             text-align: center;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-            max-width: 450px;
+            max-width: 600px;
             width: 100%;
-            border: 1px solid #334155;
-            color: #f8fafc;
         }
 
-        .spin-title {
-            color: #fbbf24;
-            font-size: 32px;
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            font-weight: 800;
-            letter-spacing: 1px;
-        }
-
-        .spin-desc {
-            color: #94a3b8;
-            margin-bottom: 35px;
-            line-height: 1.6;
-            font-size: 15px;
-        }
-
-        .spin-btn {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            color: white;
-            border: none;
-            padding: 16px 30px;
-            font-size: 20px;
-            font-weight: bold;
-            border-radius: 12px;
-            cursor: pointer;
-            width: 100%;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
-        }
-
-        .spin-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.6);
-        }
-
-        .spin-btn:disabled {
-            background: #64748b;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        #result-box {
-            margin-top: 30px;
-            padding: 20px;
-            border-radius: 12px;
-            font-size: 16px;
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .win {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid #10b981;
-            color: #10b981;
-        }
-
-        .lose {
-            background: rgba(239, 68, 68, 0.1);
-            border: 1px solid #ef4444;
-            color: #ef4444;
-        }
-
-        .code-highlight {
-            display: inline-block;
-            background: #000;
-            padding: 10px 20px;
-            margin-top: 15px;
-            font-size: 24px;
-            letter-spacing: 3px;
-            border-radius: 8px;
-            color: #fbbf24;
+        .loot-title {
+            color: #38bdf8;
+            font-size: 36px;
             font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+        }
+
+        .loot-desc {
+            color: #94a3b8;
+            font-size: 16px;
+            margin-bottom: 50px;
+        }
+
+        /* Hộp quà Cyber */
+        .box-wrapper {
+            position: relative;
+            height: 250px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 30px;
+            cursor: pointer;
+            perspective: 1000px;
+        }
+
+        .cyber-box {
+            font-size: 120px;
+            color: #cbd5e1;
+            filter: drop-shadow(0 0 30px rgba(56, 189, 248, 0.3));
+            transition: all 0.3s ease;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .box-wrapper:hover .cyber-box {
+            color: #38bdf8;
+            filter: drop-shadow(0 0 50px rgba(56, 189, 248, 0.8));
+            transform: scale(1.1);
+        }
+
+        /* Hiệu ứng Rung lắc khi đang mở */
+        .shaking .cyber-box {
+            animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both infinite;
+            color: #f59e0b;
+            filter: drop-shadow(0 0 60px rgba(245, 158, 11, 0.8));
+        }
+
+        /* Hiệu ứng lóe sáng nổ hộp */
+        .flash-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            z-index: 9999;
+            pointer-events: none;
+            opacity: 0;
+            display: none;
+        }
+
+        .flash-active {
+            display: block;
+            animation: flashBang 1s ease-out forwards;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+
+            100% {
+                transform: translateY(0px);
+            }
+        }
+
+        @keyframes shake {
+
+            10%,
+            90% {
+                transform: translate3d(-2px, 0, 0) rotate(-5deg);
+            }
+
+            20%,
+            80% {
+                transform: translate3d(4px, 0, 0) rotate(5deg);
+            }
+
+            30%,
+            50%,
+            70% {
+                transform: translate3d(-6px, 0, 0) rotate(-5deg);
+            }
+
+            40%,
+            60% {
+                transform: translate3d(6px, 0, 0) rotate(5deg);
+            }
+        }
+
+        @keyframes flashBang {
+            0% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+            }
+        }
+
+        /* Kết quả */
+        .result-panel {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid #334155;
+            padding: 30px;
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            display: none;
+            transform: scale(0.8);
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .result-panel.show {
+            display: block;
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .prize-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #10b981;
+            margin: 15px 0;
+        }
+
+        .prize-code {
+            display: inline-block;
+            background: #020617;
+            border: 1px dashed #38bdf8;
+            padding: 12px 25px;
+            font-size: 26px;
+            font-weight: 900;
+            letter-spacing: 4px;
+            color: #38bdf8;
+            border-radius: 8px;
+            box-shadow: inset 0 0 15px rgba(56, 189, 248, 0.2);
+        }
+
+        .btn-open {
+            background: transparent;
+            color: #38bdf8;
+            border: 2px solid #38bdf8;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+            letter-spacing: 2px;
+        }
+
+        .btn-open:hover {
+            background: #38bdf8;
+            color: #0b1120;
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.6);
+        }
+
+        .btn-open:disabled {
+            border-color: #475569;
+            color: #475569;
+            background: transparent;
+            cursor: not-allowed;
+            box-shadow: none;
         }
     </style>
 </head>
@@ -128,210 +237,155 @@
         <div class="header-left">
             <div class="logo"><a href="index.html">Haru</a></div>
         </div>
-
         <nav class="header-nav">
             <div class="nav-close-btn"><i class="fas fa-times"></i></div>
             <ul>
                 <li><a href="index.html">TRANG CHỦ</a></li>
                 <li><a href="mice.html">CHUỘT</a></li>
                 <li><a href="keyboard.html">BÀN PHÍM</a></li>
-                <li><a href="headphone.html">TAI NGHE</a></li>
-                <li><a href="accessories.html">ACCESSORIES</a></li>
-                <li class="nav-item-dropdown">
-                    <a href="#">HƯỚNG DẪN <i class="fas fa-chevron-down dropdown-arrow"></i></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="#">Hướng dẫn sử dụng</a></li>
-                        <li><a href="#">Tải phần mềm</a></li>
-                    </ul>
-                </li>
             </ul>
         </nav>
-
         <div class="header-right">
             <div class="Icon-NguoiDung">
                 <a href="#" class="header-icon-link" id="header-search-icon"><i class="fas fa-search"></i></a>
-
                 <div class="user-menu-container" id="user-menu-logged-out">
                     <a href="login.html" class="header-icon-link"><i class="fas fa-user"></i></a>
-                    <div class="user-dropdown-menu">
-                        <a href="login.html" class="dropdown-item">Đăng nhập</a>
-                        <a href="register.html" class="dropdown-item">Đăng ký</a>
-                    </div>
                 </div>
-
                 <div class="user-menu-container" id="user-menu-logged-in" style="display: none;">
                     <a href="profile.html" class="header-icon-link" id="current-username">...</a>
                     <div class="user-dropdown-menu">
-                        <a href="profile.html" class="dropdown-item">Tài khoản của tôi</a>
+                        <a href="profile.html" class="dropdown-item">Tài khoản</a>
                         <a href="#" class="dropdown-item" id="logout-button">Đăng xuất</a>
                     </div>
                 </div>
-
-                <a href="wishlist.html" class="header-icon-link">
-                    <i class="fas fa-heart"></i>
-                    <span class="count-badge" id="wishlist-count">0</span>
-                </a>
-                <a href="cart.html" class="header-icon-link" id="header-cart-icon">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="count-badge" id="cart-count">0</span>
-                </a>
+                <a href="wishlist.html" class="header-icon-link"><i class="fas fa-heart"></i></a>
+                <a href="cart.html" class="header-icon-link" id="header-cart-icon"><i
+                        class="fas fa-shopping-cart"></i></a>
             </div>
         </div>
-        <div class="mobile-menu-toggle"><i class="fas fa-bars"></i></div>
     </header>
 
-    <main class="spin-page-main">
-        <div class="spin-box">
-            <h2 class="spin-title"><i class="fas fa-dharmachakra"></i> THỬ VẬN MAY</h2>
-            <p class="spin-desc">Cơ hội nhận mã giảm giá lên đến 20% khi mua sắm Gaming Gear tại Haru Shop.<br><br><i>*
-                    Mỗi tài khoản chỉ được quay 1 lần duy nhất!</i></p>
+    <main class="loot-page-main">
+        <div class="grid-bg"></div>
+        <div class="flash-overlay" id="flash-screen"></div>
 
-            <button id="btn-spin" class="spin-btn" onclick="startSpin()">QUAY SỐ NGAY</button>
+        <div class="loot-container">
+            <h2 class="loot-title">HỘP TIẾP TẾ</h2>
+            <p class="loot-desc">Hệ thống phát hiện một rương chứa mã Voucher chưa được giải mã.<br>Mỗi tài khoản chỉ
+                được quyền truy cập 1 lần duy nhất.</p>
 
-            <div id="result-box"></div>
+            <div class="box-wrapper" id="box-wrapper" onclick="openLootBox()">
+                <i class="fas fa-cube cyber-box" id="box-icon"></i>
+            </div>
+
+            <button id="btn-open" class="btn-open" onclick="openLootBox()">Bắt đầu giải mã</button>
+
+            <div class="result-panel" id="result-panel">
+                <div id="result-content"></div>
+            </div>
         </div>
     </main>
-
-    <div class="search-overlay" id="search-overlay">
-        <button class="search-close-btn" id="search-close-btn"><i class="fas fa-times"></i></button>
-        <div class="search-overlay-content">
-            <form class="search-overlay-form" action="/search">
-                <input type="text" name="q" placeholder="Tìm kiếm sản phẩm..." class="search-overlay-input"
-                    autocomplete="off">
-                <button type="submit" class="search-overlay-submit"><i class="fas fa-search"></i></button>
-            </form>
-        </div>
-    </div>
-
-    <div class="cart-overlay"></div>
-    <aside class="mini-cart" id="mini-cart">
-        <div class="cart-header">
-            <h3>Giỏ Hàng</h3>
-            <button class="cart-close-btn" id="cart-close-btn"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="cart-body">
-            <p class="cart-empty-message">Giỏ hàng của bạn đang trống.</p>
-            <ul id="cart-items-list"></ul>
-        </div>
-        <div class="cart-footer">
-            <div class="cart-total">
-                <span>Tổng cộng:</span>
-                <span id="cart-total-price">0 Đ</span>
-            </div>
-            <button class="btn-checkout btn-thanh-toan" onclick="window.location.href='checkout.html'">THANH
-                TOÁN</button>
-        </div>
-    </aside>
 
     <footer class="main-footer-content" style="margin-top: 0;">
         <div class="footer-top-line"></div>
         <div class="footer-columns-wrapper">
-            <div class="footer-col subscribe-col">
-                <h4 class="col-title">ĐĂNG KÝ NHẬN TIN</h4>
-                <p>Bạn muốn nhận khuyến mãi đặc biệt? Đăng ký ngay.</p>
-                <div class="subscribe-form">
-                    <input type="email" placeholder="Địa chỉ Email" class="email-input">
-                    <button class="submit-btn">ĐĂNG KÝ</button>
-                </div>
-                <div class="social-icons">
-                    <a href="#" class="social-icon-link"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="social-icon-link"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="social-icon-link"><i class="fab fa-youtube"></i></a>
-                </div>
-            </div>
-            <div class="footer-col support-col">
-                <h4 class="col-title">SUPPORT</h4>
-                <ul>
-                    <li><a href="#">FAQs</a></li>
-                    <li><a href="#">Hướng dẫn sử dụng</a></li>
-                    <li><a href="#">Chính sách vận chuyển</a></li>
-                </ul>
-            </div>
             <div class="footer-col contact-col">
                 <h4 class="col-title">HARU SHOP</h4>
                 <p class="address-line">Address: 411/67/51 Lê Đức Thọ, Phường 16, Gò Vấp, TP.HCM</p>
                 <p class="contact-line">Email: linn70180@gmail.com</p>
-                <p class="contact-line">Hotline: +84 796 722 41</p>
             </div>
         </div>
         <div class="footer-bottom-wrapper">
             <p class="copyright">HARU SHOP © 2026</p>
-            <div class="payment-methods">
-                <img src="img/CacHinhThucThanhToan.png" alt="Payment Methods" class="payment-image">
-            </div>
         </div>
     </footer>
 
     <script src="js/header.js"></script>
-    <script src="js/wishlist.js"></script>
-    <script src="js/cart.js"></script>
-    <script src="js/harubot.js"></script>
 
     <script>
-        // LOGIC XỬ LÝ VÒNG QUAY MAY MẮN
-        async function startSpin() {
-            // Đọc email từ LocalStorage (Sếp check lại key cho khớp hệ thống đăng nhập nhé)
+        async function openLootBox() {
+            const btn = document.getElementById('btn-open');
+            if (btn.disabled) return; // Đang mở rồi thì không cho bấm nữa
+
             let email = null;
             try {
                 const currentUserJSON = localStorage.getItem('haru-current-user');
-                if (currentUserJSON) {
-                    const currentUser = JSON.parse(currentUserJSON);
-                    email = currentUser.email;
-                }
+                if (currentUserJSON) email = JSON.parse(currentUserJSON).email;
             } catch (e) {
                 email = localStorage.getItem('user_email');
             }
 
             if (!email) {
-                alert("Bạn phải đăng nhập tài khoản mới được tham gia quay số!");
+                alert("Yêu cầu quyền truy cập: Vui lòng đăng nhập hệ thống!");
                 window.location.href = 'login.html';
                 return;
             }
 
-            const btn = document.getElementById('btn-spin');
-            const resultBox = document.getElementById('result-box');
+            const boxWrapper = document.getElementById('box-wrapper');
+            const boxIcon = document.getElementById('box-icon');
+            const resultPanel = document.getElementById('result-panel');
+            const flashScreen = document.getElementById('flash-screen');
+            const resultContent = document.getElementById('result-content');
 
+            // Trạng thái đang xử lý
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> HỆ THỐNG ĐANG QUAY...';
-            resultBox.style.display = 'none';
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> ĐANG GIẢI MÃ...';
+            boxWrapper.classList.add('shaking'); // Thêm hiệu ứng rung lắc mạnh
 
             try {
+                // Gọi API
                 const res = await fetch('https://haru-shop-backend-production-188a.up.railway.app/api/spin', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: email })
                 });
-
                 const data = await res.json();
 
+                // Tạo kịch bản hồi hộp (đợi 2.5 giây giả vờ đang decrypt)
                 setTimeout(() => {
-                    btn.innerHTML = 'ĐÃ QUAY XONG';
-                    resultBox.style.display = 'block';
+                    boxWrapper.classList.remove('shaking'); // Ngừng rung
+                    boxWrapper.style.display = 'none'; // Ẩn hộp
+                    btn.style.display = 'none'; // Ẩn nút
+
+                    // Kích hoạt hiệu ứng lóe sáng toàn màn hình
+                    flashScreen.classList.add('flash-active');
 
                     if (!res.ok) {
-                        resultBox.className = 'lose';
-                        resultBox.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${data.error}`;
-                        return;
-                    }
-
-                    if (data.code) {
-                        resultBox.className = 'win';
-                        resultBox.innerHTML = `
-                            <div style="font-size: 24px; margin-bottom: 10px;">🎉 CHÚC MỪNG 🎉</div>
-                            Bạn đã trúng:<br><b style="font-size: 18px;">${data.prize}</b><br>
-                            <span class="code-highlight">${data.code}</span>
-                            <div style="margin-top: 15px; font-size: 14px; color: #10b981;">Hãy lưu lại mã này để nhập ở bước Thanh toán nhé!</div>
+                        resultContent.innerHTML = `
+                            <i class="fas fa-lock" style="font-size: 40px; color: #ef4444; margin-bottom: 15px;"></i>
+                            <h3 style="color: #ef4444; font-size: 24px; margin-bottom: 10px;">TRUY CẬP BỊ TỪ CHỐI</h3>
+                            <p style="color: #94a3b8;">${data.error}</p>
+                            <button onclick="window.location.href='index.html'" class="btn-open" style="margin-top: 20px; font-size: 14px; padding: 10px 20px;">Về trang chủ</button>
+                        `;
+                    } else if (data.code) {
+                        resultContent.innerHTML = `
+                            <div style="color: #38bdf8; font-size: 14px; font-weight: bold; letter-spacing: 2px;">GIẢI MÃ THÀNH CÔNG</div>
+                            <div class="prize-name">${data.prize}</div>
+                            <div class="prize-code">${data.code}</div>
+                            <p style="color: #94a3b8; margin-top: 20px; font-size: 14px;">Lưu trữ mã lệnh này vào bộ nhớ để sử dụng ở khâu Thanh toán.</p>
+                            <button onclick="window.location.href='index.html'" class="btn-open" style="margin-top: 25px; font-size: 14px; padding: 10px 20px;">Xác nhận</button>
                         `;
                     } else {
-                        resultBox.className = 'lose';
-                        resultBox.innerHTML = `<i class="far fa-sad-tear" style="font-size: 24px; margin-bottom: 10px; display: block;"></i> ${data.prize}`;
+                        resultContent.innerHTML = `
+                            <i class="fas fa-box-open" style="font-size: 40px; color: #475569; margin-bottom: 15px;"></i>
+                            <h3 style="color: #f8fafc; font-size: 24px; margin-bottom: 10px;">HỘP RỖNG</h3>
+                            <p style="color: #94a3b8;">${data.prize}</p>
+                            <button onclick="window.location.href='index.html'" class="btn-open" style="margin-top: 20px; font-size: 14px; padding: 10px 20px;">Đóng</button>
+                        `;
                     }
-                }, 1500);
+
+                    // Hiện bảng kết quả sau khi flash sáng 1 chút
+                    setTimeout(() => {
+                        resultPanel.classList.add('show');
+                    }, 200);
+
+                }, 2500);
 
             } catch (err) {
+                boxWrapper.classList.remove('shaking');
                 btn.disabled = false;
-                btn.innerHTML = 'QUAY SỐ NGAY';
-                alert("Mất kết nối tới Server, vui lòng kiểm tra mạng!");
+                btn.innerHTML = 'BẮT ĐẦU GIẢI MÃ';
+                alert("Mất kết nối máy chủ! Không thể mở hộp.");
             }
         }
     </script>
