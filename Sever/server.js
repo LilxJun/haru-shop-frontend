@@ -16,6 +16,7 @@ const cartRoutes = require('./routes/cart-routes');
 const orderRoutes = require('./routes/order-routes');
 const couponRoutes = require('./routes/coupon-routes');
 const harubotRoutes = require('./routes/harubot-routes');
+const voucherController = require('./controllers/voucher-controller');
 
 
 // Gắn Routes
@@ -25,6 +26,10 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/coupons', couponRoutes);
 app.use('/api/harubot', harubotRoutes);
+// CÁC API CHO QUẢN LÝ VOUCHER
+app.get('/api/vouchers', voucherController.getAllVouchers);
+app.post('/api/vouchers', voucherController.createVoucher);
+app.delete('/api/vouchers/:id', voucherController.deleteVoucher);
 
 
 
