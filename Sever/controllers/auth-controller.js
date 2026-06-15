@@ -1,8 +1,11 @@
+require('dotenv').config();
 const pool = require('../config/db');
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true, // Dùng SSL cho an toàn
     auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
@@ -55,15 +58,25 @@ exports.forgotPassword = async (req, res) => {
         await pool.query('UPDATE users SET otp = $1, otp_expiry = $2 WHERE email = $3', [otp, expiry, email]);
 
         const mailOptions = {
-            from: '"Haru Shop" <linn70180@gmail.com>',
+            from: '"Haru Shop - Gaming Gear" <' + process.env.EMAIL_USER + '>',
             to: email,
-            subject: 'Khôi phục mật khẩu - Haru Shop',
-            html: `<div style="padding: 20px;"><h2>Xin chào!</h2><p>Mã OTP của bạn là: <strong>${otp}</strong></p></div>`
+            subject: 'Mã xác nhận khôi phục mật khẩu - Haru Shop',
+            html: `
+                <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f8fafc; border-radius: 8px; max-width: 500px; margin: auto;">
+                    <h2 style="color: #0b1120; text-align: center;">KHÔI PHỤC MẬT KHẨU</h2>
+                    <p style="color: #334155; font-size: 16px;">Bạn vừa yêu cầu đặt lại mật khẩu cho tài khoản Haru Shop. Vui lòng sử dụng mã OTP dưới đây để tiếp tục:</p>
+                    <div style="background-color: #0b1120; color: #fbbf24; font-size: 28px; font-weight: bold; letter-spacing: 5px; text-align: center; padding: 15px; border-radius: 8px; margin: 20px 0;">
+                        ${otp}
+                    </div>
+                    <p style="color: #ef4444; font-size: 14px; font-style: italic;">* Mã này sẽ hết hạn trong vòng 15 phút.</p>
+                </div>
+            `
         };
 
         await transporter.sendMail(mailOptions);
         res.json({ success: true, message: 'Đã gửi mã OTP đến email!' });
     } catch (err) {
+        console.error("Lỗi gửi mail:", err);
         res.status(500).json({ success: false, message: 'Lỗi Server không thể gửi mail!' });
     }
 };
