@@ -3,12 +3,10 @@ const pool = require('../config/db');
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // Dùng SSL cho an toàn
+    service: 'gmail',
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
+        pass: process.env.EMAIL_PASS  // Nodemailer sẽ tự lấy cái mã viết liền từ Railway
     }
 });
 
