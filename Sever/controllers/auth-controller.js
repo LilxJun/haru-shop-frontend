@@ -11,10 +11,17 @@ const nodemailer = require('nodemailer');
 // });
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,             // Chuyển sang cổng 587 linh hoạt hơn
+    secure: false,         // Cổng 587 bắt buộc phải để secure là false
+    requireTLS: true,      // Tự động nâng cấp lên đường truyền bảo mật
     auth: {
-        user: 'linn70180@gmail.com',     // Điền thẳng email của sếp vào đây
-        pass: 'sslhtttgbjfxhfvg'         // Điền thẳng mã App Password viết liền vào đây
+        user: 'linn70180@gmail.com', // Sếp cứ gắn cứng email vào đây để test cho chắc
+        pass: 'sslhtttgbjfxhfvg'     // Mật khẩu ứng dụng viết liền không dấu cách
+    },
+    tls: {
+        // Cờ lệnh quan trọng nhất: Ép Railway bỏ qua các lỗi xác thực IPv6 và chứng chỉ mạng
+        rejectUnauthorized: false
     }
 });
 
