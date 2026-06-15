@@ -2,11 +2,19 @@ require('dotenv').config();
 const pool = require('../config/db');
 const nodemailer = require('nodemailer');
 
+// const transporter = nodemailer.createTransport({
+//     service: 'gmail',
+//     auth: {
+//         user: process.env.EMAIL_USER,
+//         pass: process.env.EMAIL_PASS  // Nodemailer sẽ tự lấy cái mã viết liền từ Railway
+//     }
+// });
+
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS  // Nodemailer sẽ tự lấy cái mã viết liền từ Railway
+        user: 'linn70180@gmail.com',     // Điền thẳng email của sếp vào đây
+        pass: 'sslhtttgbjfxhfvg'         // Điền thẳng mã App Password viết liền vào đây
     }
 });
 
@@ -74,8 +82,16 @@ exports.forgotPassword = async (req, res) => {
         await transporter.sendMail(mailOptions);
         res.json({ success: true, message: 'Đã gửi mã OTP đến email!' });
     } catch (err) {
-        console.error("Lỗi gửi mail:", err);
-        res.status(500).json({ success: false, message: 'Lỗi Server không thể gửi mail!' });
+        // IN LỖI CHI TIẾT RA CONSOLE CỦA RAILWAY
+        console.error("=== LỖI GỬI MAIL CHI TIẾT ===");
+        console.error(err);
+        console.error("=============================");
+
+        // TRẢ LỖI THẬT VỀ CHO TRANG WEB ĐỂ DỄ ĐỌC
+        res.status(500).json({
+            success: false,
+            message: 'Lỗi gửi mail chi tiết: ' + err.message
+        });
     }
 };
 
