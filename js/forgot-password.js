@@ -1,6 +1,5 @@
 /* =======================================
    XỬ LÝ QUÊN MẬT KHẨU & ĐỔI MẬT KHẨU BẰNG OTP
-   (File: JS/ForgotPassword.JS)
    ======================================= */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -14,10 +13,52 @@ document.addEventListener('DOMContentLoaded', () => {
     const newPassInput = document.getElementById('reset-new-password');
     const btnResetPass = document.getElementById('btn-reset-pass');
     const step2Error = document.getElementById('step2-error');
+    const toggleResetPassword = document.getElementById('toggle-reset-password');
 
     let savedEmail = '';
 
-    // --- HÀM 1: GỬI EMAIL LẤY OTP ---
+    // --- HÀM 0: ẨN/HIỆN MẬT KHẨU (Sửa lỗi liệt nút con mắt) ---
+    if (toggleResetPassword) {
+        toggleResetPassword.addEventListener('click', function () {
+            const type = newPassInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            newPassInput.setAttribute('type', type);
+            this.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+        });
+    }
+
+    // --- HÀM 1: POPUP THÔNG BÁO XỊN XÒ GIỮA MÀN HÌNH ---
+    function showSuccessPopup(message) {
+        // Tạo lớp phủ nền mờ
+        const overlay = document.createElement('div');
+        overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.3s ease; backdrop-filter: blur(5px);';
+
+        // Tạo khung Popup phong cách Gaming
+        const box = document.createElement('div');
+        box.style.cssText = 'background: rgba(30, 41, 59, 0.95); padding: 40px; border-radius: 16px; text-align: center; border: 1px solid #10b981; box-shadow: 0 0 30px rgba(16, 185, 129, 0.3); transform: scale(0.8); transition: 0.3s ease; max-width: 400px; width: 90%;';
+
+        box.innerHTML = `
+            <i class="fas fa-check-circle" style="font-size: 60px; color: #10b981; margin-bottom: 20px;"></i>
+            <h3 style="color: #f8fafc; font-size: 24px; margin-bottom: 15px;">Thành công!</h3>
+            <p style="color: #94a3b8; font-size: 16px; margin-bottom: 25px;">${message}</p>
+            <button id="btn-popup-ok" style="background: #10b981; color: #fff; border: none; padding: 12px 30px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; transition: 0.3s;">Đăng nhập ngay</button>
+        `;
+
+        overlay.appendChild(box);
+        document.body.appendChild(overlay);
+
+        // Kích hoạt hiệu ứng xuất hiện
+        requestAnimationFrame(() => {
+            overlay.style.opacity = '1';
+            box.style.transform = 'scale(1)';
+        });
+
+        // Bấm nút chuyển về trang Login
+        document.getElementById('btn-popup-ok').addEventListener('click', () => {
+            window.location.href = 'login.html';
+        });
+    }
+
+    // --- HÀM 2: GỬI EMAIL LẤY OTP ---
     if (step1Form) {
         step1Form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -55,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- HÀM 2: ĐỔI MẬT KHẨU BẰNG OTP ---
+    // --- HÀM 3: ĐỔI MẬT KHẨU BẰNG OTP ---
     if (step2Form) {
         step2Form.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -83,12 +124,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.success) {
                     btnResetPass.innerText = 'Thành công!';
-                    btnResetPass.style.backgroundColor = '#28a745'; // Nút xanh lá
+                    btnResetPass.style.backgroundColor = '#10b981'; // Nút xanh lá
 
+                    // Thay thế alert() bằng Popup xịn
                     setTimeout(() => {
-                        alert('Đổi mật khẩu thành công! Vui lòng đăng nhập lại.');
-                        window.location.href = 'login.html';
-                    }, 1500);
+                        showSuccessPopup('Mật khẩu của bạn đã được thiết lập lại an toàn.');
+                    }, 500);
+
                 } else {
                     step2Error.innerText = data.message;
                     step2Error.style.display = 'block';
